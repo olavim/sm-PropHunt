@@ -45,6 +45,41 @@ ph_guaranteed_ct_turns  	1+		Number of turns after which seekers might be switch
 ph_knifespeed           	0.0+	Running speed when holding a knife (multiplier)
 ```
 
+## Natives
+
+The plugin comes with a few native functions. And here's the list if you care...
+
+```
+file and doc:
+addons/sourcemod/scripting/prophunt/include/phentity.inc
+
+PHEntity
+PHEntity.index
+PHEntity.hasChild
+PHEntity.child
+PHEntity.GetOrigin
+PHEntity.GetAbsAngles
+PHEntity.GetVelocity
+PHEntity.SetMoveType
+PHEntity.SetMovementSpeed
+PHEntity.SetChild
+PHEntity.RemoveChild
+PHEntity.AttachChild
+PHEntity.DetachChild
+PHEntity.Teleport
+PHEntity.TeleportTo
+
+file and doc:
+addons/sourcemod/scripting/prophunt/include/phclient.inc
+
+PHClient < PHEntity
+PHClient.team
+PHClient.isAlive
+PHClient.isFreezed
+PHClient.isConnected
+PHClient.setFreezed
+```
+
 ## Version history
 
 **v1.0**
