@@ -3,7 +3,7 @@
 
 The game begins with a countdown: Counter-Terrorists, the seekers, are blinded and cannot move. During this time Terrorists, the hiders, choose a world model and try to hide themselves amongst the rubble of ~~de_dust2~~ the map being played.
 
-Once the countdown is over, the seekers try to find and kill the hiders. Much like regular old hide and seek from our youth, if not for all the ungodly transforming into inanimate objects and murdering.
+Once the countdown is over, the seekers try to find and kill the hiders. Much like regular old hide and seek from our youth, if not for all the ungodly transforming into toilets and murdering.
 
 ## Cvars
 
