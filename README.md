@@ -8,34 +8,34 @@ Once the countdown is over, the seekers try to find and kill the hiders. Much li
 ## Cvars
 
 ```
-ph_freezects              Should CTs get freezed and blinded on spawn?    on/off (1 or 0)
-ph_freezetime             How long should the CTs be freezed after spawn?    on/off (1 or 0)
-ph_changelimit            How often a T is allowed to choose his model ingame?    on/off (1 or 0)
-ph_changelimittime        How long should a T be allowed to change his model again after spawn?    on/off (1 or 0)
-ph_autochoose             Should the plugin choose models for the hiders automatically?    on/off (1 or 0)
-ph_whistle                Are terrorists allowed to whistle?    on/off (1 or 0)
-ph_whistle_times          How many times a hider is allowed to whistle per round?    on/off (1 or 0)
-ph_whistle_seeker         Allow CTs to enforce T whistle?    on/off (1 or 0)
-ph_hider_win_fargs        How many frags should surviving terrorists gain?    on/off (1 or 0)
-ph_slay_seekers           Should we slay all seekers on round end and there are still some hiders alive?    on/off (1 or 0)
-ph_hp_seeker_enable       Should CT lose HP when shooting?    on/off (1 or 0)
-ph_hp_seeker_dec          How much hp should a CT lose on shooting?    on/off (1 or 0)
-ph_hp_seeker_inc          How much hp should a CT gain when hitting a hider?    on/off (1 or 0)
-ph_hp_seeker_inc_shotgun  How much hp should a CT gain when hitting a hider with shotgun?    on/off (1 or 0)
-ph_hp_seeker_bonus        How much hp should a CT gain when killing a hider?    on/off (1 or 0)
-ph_hiderspeed             Hiders' speed    on/off (1 or 0)
-ph_disable_ducking        Disable ducking (crouching)    on/off (1 or 0)
-ph_auto_thirdperson       Should thirdperson view be set automatically for hiders on round start    on/off (1 or 0)
-ph_hider_freeze_mode      0: Disables /freeze command for hiders, 1: Only freeze on position, be able to move camera, 2: Freeze completely (no cameramovements)    on/off (1 or 0)
-ph_hide_blood             Hide blood on hider damage?    on/off (1 or 0)
-ph_show_hidehelp          Show helpmenu explaining the game on first player spawn?    on/off (1 or 0)
-ph_ct_ratio               The ratio of hiders to 1 seeker. 0 to disables teambalance.    on/off (1 or 0)
-ph_disable_use            Disable CTs pushing things?    on/off (1 or 0)
-ph_hider_freeze_inair     Are hiders allowed to freeze in the air?    on/off (1 or 0)
-ph_hide_player_locations  Hide the location info shown next to players name on voice chat and teamsay?    on/off (1 or 0)
-ph_auto_freeze_time       Time after which stationary players should freeze automatically    on/off (1 or 0)
-ph_guaranteed_ct_turns    Turns after which CTs might be switched to the T side    on/off (1 or 0)
-ph_knifespeed             Running speed when holding a knife (multiplier)    on/off (1 or 0)
+ph_freezects            	on/off	Freeze and blind seekers on round start
+ph_freezetime           	0+		Amount of time the seekers are freezed
+ph_changelimit          	0+		Number of times a hider is allowed to change his model
+ph_changelimittime      	0.0+	Amount of time a hider is allowed to change his model
+ph_autochoose           	on/off	Choose random models for hiders at round start
+ph_whistle              	on/off	Allow hiders to whistle
+ph_whistle_times        	0+		Number of times a hider is allowed to whistle (per round)
+ph_whistle_seeker       	on/off	Allow seekers to enforce hiders to whistle
+ph_hider_win_fargs      	0-10	Number of kills surviving hiders receive on round end
+ph_slay_seekers         	on/off	Slay all seekers on round end if alive hiders remain
+ph_hp_seeker_enable     	on/off	Seekers lose damage when firing anything not-hider 
+ph_hp_seeker_dec        	0+		Amount of hp a seeker loses on shooting
+ph_hp_seeker_inc        	0+		Amount of hp a seeker gains when shooting a hider
+ph_hp_seeker_inc_shotgun	0+		Amount of hp a seeker gains when shooting a hider with a shotgun
+ph_hp_seeker_bonus      	0+		Amount of hp a seeker gains when killing a hider
+ph_hiderspeed           	0.5+	Hiders' movement speed
+ph_disable_ducking      	on/off	Disable ducking (crouching)
+ph_auto_thirdperson     	on/off	Set thirdperson view for hiders automatically on round start
+ph_hider_freeze_mode    	0-2		Set the /freeze command behaviour - 0: disable the command, 1: freeze on position, 2: freeze completely (no camera movements)
+ph_hide_blood           	on/off	Hide hiders' blood when taking damage
+ph_show_hidehelp        	on/off	Show helpmenu explaining the game on first player spawn
+ph_ct_ratio             	0+		The ratio of hiders to 1 seeker - 0 disables team balance
+ph_disable_use          	on/off	Disable seekers' use key
+ph_hider_freeze_inair   	on/off	Allow hiders to freeze in the air
+ph_hide_player_locations	on/off	Hide location shown next to a player's name on voice chat and teamsay
+ph_auto_freeze_time     	0+		Amount of time after which stationary players should freeze automatically. 0 disables automatic freezing
+ph_guaranteed_ct_turns  	1+		Number of turns after which seekers might be switched to the hiders' side
+ph_knifespeed           	0.0+	Running speed when holding a knife (multiplier)
 ```
 
 ## Version history
