@@ -80,6 +80,12 @@ PHClient.isConnected
 PHClient.setFreezed
 ```
 
+## Installation
+
+This plugin has been tested (and built) on Metamod:Source `1.10.6` and SourceMod `1.7.3`, so go and install those if you haven't already. Earlier versions *might* work, I wouldn't know, but definitely don't count on it.
+
+If you download this project zipped, just extract everything to your server's CS:GO install dir. If not... just make sure the folder hierarchy remains the same
+
 ## Version history
 
 **v1.0**
