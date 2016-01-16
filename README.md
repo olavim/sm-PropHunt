@@ -5,6 +5,20 @@ The game begins with a countdown: Counter-Terrorists, the seekers, are blinded a
 
 Once the countdown is over, the seekers try to find and kill the hiders. Much like regular old hide and seek from our youth, if not for all the ungodly transforming into toilets and murdering.
 
+## Commands
+
+```
+/help                     Show instructions on how to play.
+/hide /hidemenu           Opens a menu with different models to choose as a hider.
+/tp /third /thirdperson   Toggles thirdperson view for hiders
+/+3rd                     Set to thirdperson view for hiders.
+/-3rd                     Set to firstperson view for hiders.
+/whistle                  Plays a random sound from the hider's position to give the seekers a hint.
+/whoami                   Displays the current model description in chat.
+/freeze                   Toggles freezed state for hiders.
+/ct                       Requests a switch to the seeking side.
+```
+
 ## Cvars
 
 - Here `on/off` means a variable accepts the values `1` (on) and `0` (off).
@@ -43,20 +57,6 @@ ph_hide_player_locations	on/off	Hide location shown next to a player's name on v
 ph_auto_freeze_time     	0+		Amount of time after which stationary players should freeze automatically. 0 disables automatic freezing
 ph_guaranteed_ct_turns  	1+		Number of turns after which seekers might be switched to the hiders' side
 ph_knifespeed           	0.0+	Running speed when holding a knife (multiplier)
-```
-
-## Commands
-
-```
-/help                     Show instructions on how to play.
-/hide /hidemenu           Opens a menu with different models to choose as a hider.
-/tp /third /thirdperson   Toggles thirdperson view for hiders
-/+3rd                     Set to thirdperson view for hiders.
-/-3rd                     Set to firstperson view for hiders.
-/whistle                  Plays a random sound from the hider's position to give the seekers a hint.
-/whoami                   Displays the current model description in chat.
-/freeze                   Toggles freezed state for hiders.
-/ct                       Requests a switch to the seeking side.
 ```
 
 ## Natives
@@ -99,6 +99,16 @@ PHClient.setFreezed
 This plugin has been tested (and built) on Metamod:Source `1.10.6` and SourceMod `1.7.3`, so go and install those if you haven't already. Earlier versions *might* work, I wouldn't know, but definitely don't count on it.
 
 If you download this project zipped, just extract everything to your server's CS:GO install dir. If not... just make sure the folder hierarchy remains the same
+
+## Compiling
+
+You may want to add your own flavor to the plugin. Although I'd prefer you would make suggestions or downright contribute directly to this project, but you wouldn't want to do that, now would you.
+
+And I'll lose interest in this plugin and abandon it to hell in no time anyway, so I might as well make my testimony now: instructions on how to compile to everyone!
+
+First of all, just like the installation instructions **above**, you need Metamod:Source `1.10.6` and SourceMod `1.7.3` blah blah. Then you clone this repository to your workstation of choice and compile `prophunt.sp`. That's it. The file automatically links all the files together and makes a magical `prophunt.smx` to your `scripting/compiled` directory.
+
+Elementary, really.
 
 ## Version history
 
