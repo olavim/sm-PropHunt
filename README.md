@@ -48,13 +48,13 @@ ph_knifespeed           	0.0+	Running speed when holding a knife (multiplier)
 ## Commands
 
 ```
+/help                     Show instructions on how to play.
 /hide /hidemenu           Opens a menu with different models to choose as a hider.
 /tp /third /thirdperson   Toggles thirdperson view for hiders
 /+3rd                     Set to thirdperson view for hiders.
 /-3rd                     Set to firstperson view for hiders.
 /whistle                  Plays a random sound from the hider's position to give the seekers a hint.
 /whoami                   Displays the current model description in chat.
-/hidehelp                 Show instructions on how to play.
 /freeze                   Toggles freezed state for hiders.
 /ct                       Requests a switch to the seeking side.
 ```
