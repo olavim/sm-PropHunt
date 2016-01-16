@@ -54,7 +54,7 @@ ph_knifespeed           	0.0+	Running speed when holding a knife (multiplier)
 /-3rd                     Set to firstperson view for hiders.
 /whistle                  Plays a random sound from the hider's position to give the seekers a hint.
 /whoami                   Displays the current model description in chat.
-/hidehelp                 Prints instructions on how to play to chat.
+/hidehelp                 Show instructions on how to play.
 /freeze                   Toggles freezed state for hiders.
 /ct                       Requests a switch to the seeking side.
 ```
