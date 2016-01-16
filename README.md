@@ -10,7 +10,7 @@ Once the countdown is over, the seekers try to find and kill the hiders. Much li
 - Here `on/off` means a variable accepts the values `1` (on) and `0` (off).
 - The notation `0+` means a variable accepts integer values greater than or equal to 0, such as `0`, `1`, `255`...
 - The notation `0.0+` again means a variable accepts floating point values greater than or equal to 0, such as `0`, `0.5`, `1`, `19.24`...
-- `0-2` means a variable accepts variables greater than or equal to 0, and smaller than or equal to 2, namely `0`, `1` and `2`.
+- `0-2` means a variable accepts integer numbers greater than or equal to 0, and smaller than or equal to 2, namely `0`, `1` and `2`.
 
 Any additional terminological magic you might encounter below should be possible to be deduced from the rules above.
 
