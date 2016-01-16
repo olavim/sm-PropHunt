@@ -49,7 +49,7 @@ ph_disable_ducking      	on/off	Disable ducking (crouching)
 ph_auto_thirdperson     	on/off	Set thirdperson view for hiders automatically on round start
 ph_hider_freeze_mode    	0-2		Set the /freeze command behaviour - 0: disable the command, 1: freeze on position, 2: freeze completely (no camera movements)
 ph_hide_blood           	on/off	Hide hiders' blood when taking damage
-ph_show_hidehelp        	on/off	Show helpmenu explaining the game on first player spawn
+ph_show_help        	    on/off	Show helpmenu explaining the game on first player spawn
 ph_ct_ratio             	0+		The ratio of hiders to 1 seeker - 0 disables team balance
 ph_disable_use          	on/off	Disable seekers' use key
 ph_hider_freeze_inair   	on/off	Allow hiders to freeze in the air
