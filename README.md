@@ -45,6 +45,20 @@ ph_guaranteed_ct_turns  	1+		Number of turns after which seekers might be switch
 ph_knifespeed           	0.0+	Running speed when holding a knife (multiplier)
 ```
 
+## Commands
+
+```
+/hide /hidemenu           Opens a menu with different models to choose as a hider.
+/tp /third /thirdperson   Toggles thirdperson view for hiders
+/+3rd                     Set to thirdperson view for hiders.
+/-3rd                     Set to firstperson view for hiders.
+/whistle                  Plays a random sound from the hider's position to give the seekers a hint.
+/whoami                   Displays the current model description in chat.
+/hidehelp                 Prints instructions on how to play to chat.
+/freeze                   Toggles freezed state for hiders.
+/ct                       Requests a switch to the seeking side.
+```
+
 ## Natives
 
 The plugin comes with a few native functions. And here's the list if you care...
