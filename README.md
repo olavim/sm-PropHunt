@@ -8,7 +8,7 @@ Once the countdown is over, the seekers try to find and kill the hiders. Much li
 ## Commands
 
 ```
-/help                     Show instructions on how to play.
+/rules                    Show instructions on how to play.
 /hide /hidemenu           Opens a menu with different models to choose as a hider.
 /tp /third /thirdperson   Toggles thirdperson view for hiders
 /+3rd                     Set to thirdperson view for hiders.
