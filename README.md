@@ -118,6 +118,11 @@ Elementary, dear Watson.
 
 ## Version history
 
+**v1.0.1**
+
+- Configurable sounds.
+- Changed the `addons/sourcemod/configs` folder structure.
+
 **v1.0**
 
-Initial release.
+- Initial release.
