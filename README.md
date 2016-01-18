@@ -106,6 +106,12 @@ for example:
 
 To add props yourself you will need to find out the paths. I used the Hammer editor (CS:GO SDK) to get the few that you can find in `default.cfg` and `de_dust2.cfg`. I'd appreciate if you shared your listings with me so I can update mine.
 
+## Configuring whistles
+
+Custom whistles may be specified by modifying `addons/sourcemod/configs/whistles.cfg`. To add a whistle, simply specify its path on a new line. The paths of the whistles should be relative to the `sound` directory (in the root directory of your CS:GO installation), so that if you had the sound file `sound/awesome/brilliant.mp3`, you would specify it just as `awesome/brilliant.mp3`.
+
+Additionally, only **mp3** sound files seem work.
+
 ## Compiling
 
 You may want to add your own flavor to the plugin. Although I'd prefer you would make suggestions or downright contribute directly to this project, but you wouldn't want to do that, now would you.
