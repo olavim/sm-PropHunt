@@ -65,7 +65,43 @@ ph_knifespeed           	0.0+	Running speed when holding a knife (multiplier)
 
 This plugin has been tested (and built) on Metamod:Source `1.10.6` and SourceMod `1.7.3`, so go and install those if you haven't already. Earlier versions *might* work, I wouldn't know, but definitely don't count on it.
 
-If you download this project zipped, just extract everything to your server's CS:GO install dir. If not... just make sure the folder hierarchy remains the same
+If you download this project zipped, just extract everything to your server's CS:GO install dir. If not... just make sure the following files are in correct place:
+
+- `addons/sourcemod/plugins/prophunt.smx`
+- `addons/sourcemod/configs/prophunt/default.cfg`
+- `addons/sourcemod/translations/plugin.prophunt.txt`
+- `sound/prophunt/` and all the files inside. This will be configurable in the future.
+
+## Configuring model lists
+
+You may specify what models are available in each map. There is also a special default listing, which will be applied to all maps in addition to the map-specific listings (will be further configurable in the future).
+
+For example, if you want to make a listing for, say, `de_inferno`, you would make a file `de_inferno.cfg` in `addons/sourcemod/configs/prophunt/`. The default file is located in that same folder, and is named `default.cfg`.
+
+All listing should obey the following format:
+
+```
+"Models"
+{
+    <model-path>  <model-nickname>
+    ...
+}
+```
+
+for example:
+
+```
+"Models
+{
+    "props_c17\oildrum001"          "Oil Drum"
+    "props\de_dust\grainbasket01a"  "Grain Basket (closed)"
+    ...
+}
+```
+
+**IMPORTANT!** Always specify the model paths using backslashes (`\`) ! Forward slashes do not work, and will most likely invalidate the whole file.
+
+To add props yourself you will need to find out the paths. I used the Hammer editor (CS:GO SDK) to get the few that you can find in `default.cfg` and `de_dust2.cfg`. I'd appreciate if you shared your listings with me so I can update mine.
 
 ## Compiling
 
@@ -75,7 +111,7 @@ And I'll lose interest in this plugin and abandon it to hell in no time anyway, 
 
 First of all, just like the installation instructions **above**, you need Metamod:Source `1.10.6` and SourceMod `1.7.3` blah blah. Then you clone this repository to your workstation of choice and compile `prophunt.sp`. That's it. The file automatically links all the files together and makes a magical `prophunt.smx` to your `scripting/compiled` directory.
 
-Elementary, really.
+Elementary, dear Watson.
 
 ## Version history
 
