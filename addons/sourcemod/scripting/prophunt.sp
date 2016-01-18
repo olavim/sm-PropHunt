@@ -1,3 +1,23 @@
+/* ------------------------------------------------------------------
+
+                            ABOUT / CREDITS
+
+This is a revived version of PropHunt for CS:GO, written by
+Statistician (I sometimes go by the alias Tilastokeskus).
+
+Although this plugin has essentially been written from scratch,
+many snippets originate from the earlier CS:S plugin written
+(and abandoned) by SelaX. Anyone who thinks I should give credit
+to other people should call me out on it, and I'll make sure
+they will be mentioned appropriately.
+
+
+                               LICENCE
+
+I'm publishing this under the MIT licence, but I don't really give a shit.
+
+------------------------------------------------------------------ */
+
 #pragma semicolon 1
 #include <sourcemod>
 #include <sdktools>
@@ -15,7 +35,7 @@ public Plugin myinfo = {
     author = "Statistician",
     description = "Terrorists choose a model and hide, CTs try to find and kill them.",
     version = PLUGIN_VERSION,
-    url = ""
+    url = "http://github.com/tilastokeskus/sm-PropHunt"
 };
 
 public void OnPluginStart() {
@@ -63,32 +83,6 @@ public void OnConfigsExecuted() {
         SetConVarInt(g_hProtectedConvar[i], forced_values[i], true);
         HookConVarChange(g_hProtectedConvar[i], OnCvarChange);
     }
-}
-
-public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) {
-    CreateNative("PHEntity.PHEntity", Native_PHEntity);
-    CreateNative("PHEntity.index.get", Native_PHEntity_GetIndex);
-    CreateNative("PHEntity.hasChild.get", Native_PHEntity_GetHasChild);
-    CreateNative("PHEntity.child.get", Native_PHEntity_GetChild);
-    CreateNative("PHEntity.GetOrigin", Native_PHEntity_GetOrigin);
-    CreateNative("PHEntity.GetAbsAngles", Native_PHEntity_GetOrigin);
-    CreateNative("PHEntity.GetVelocity", Native_PHEntity_GetOrigin);
-    CreateNative("PHEntity.SetMoveType", Native_PHEntity_SetMoveType);
-    CreateNative("PHEntity.SetMovementSpeed", Native_PHEntity_SetMovementSpeed);
-    CreateNative("PHEntity.SetChild", Native_PHEntity_SetChild);
-    CreateNative("PHEntity.RemoveChild", Native_PHEntity_RemoveChild);
-    CreateNative("PHEntity.AttachChild", Native_PHEntity_AttachChild);
-    CreateNative("PHEntity.DetachChild", Native_PHEntity_DetachChild);
-    CreateNative("PHEntity.Teleport", Native_PHEntity_Teleport);
-    CreateNative("PHEntity.TeleportTo", Native_PHEntity_TeleportTo);
-
-    CreateNative("PHClient.PHClient", Native_PHEntity);
-    CreateNative("PHClient.team.get", Native_PHClient_GetTeam);
-    CreateNative("PHClient.isAlive.get", Native_PHClient_GetIsAlive);
-    CreateNative("PHClient.isFreezed.get", Native_PHClient_GetIsFreezed);
-    CreateNative("PHClient.isConnected.get", Native_PHClient_GetIsConnected);
-    CreateNative("PHClient.SetFreezed", Native_PHClient_SetFreezed);
-    return APLRes_Success;
 }
 
 // teach the players the /whistle and /tp commands
@@ -147,8 +141,7 @@ static void CreateConVars() {
     cvar_AutoThirdPerson = CreateConVar("ph_auto_thirdperson", "1", "Enable thirdperson view for hiders automatically. (Default: 1)", FCVAR_PLUGIN, true, 0.00, true, 1.00);
     cvar_HiderFreezeMode = CreateConVar("ph_hider_freeze_mode", "1", "0: Disables /freeze command for hiders, 1: Only freeze on position, be able to move camera, 2: Freeze completely (no cameramovements) (Default: 2)", FCVAR_PLUGIN, true, 0.00, true, 2.00);
     cvar_HideBlood = CreateConVar("ph_hide_blood", "1", "Hide blood on hider damage. (Default: 1)", FCVAR_PLUGIN, true, 0.00, true, 1.00);
-    cvar_ShowHideHelp = CreateConVar("ph_show_hidehelp", "1", "Show helpmenu explaining the game on first player spawn. (Default: 1)", FCVAR_PLUGIN, true, 0.00, true, 1.00);
-    cvar_ShowProgressBar = CreateConVar("ph_show_progressbar", "1", "Show progressbar for last 15 seconds of freezetime. (Default: 1)", FCVAR_PLUGIN, true, 0.00, true, 1.00);
+    cvar_ShowHelp = CreateConVar("ph_show_help", "0", "Show help explaining the game on first player spawn. (Default: 0)", FCVAR_PLUGIN, true, 0.00, true, 1.00);
     cvar_CTRatio = CreateConVar("ph_ct_ratio", "3", "The ratio of hiders to 1 seeker. 0 to disables teambalance. (Default: 3)", FCVAR_PLUGIN, true, 0.00, true, 64.00);
     cvar_DisableUse = CreateConVar("ph_disable_use", "1", "Disable CTs pushing things. (Default: 1)", FCVAR_PLUGIN, true, 0.00, true, 1.00);
     cvar_HiderFreezeInAir = CreateConVar("ph_hider_freeze_inair", "0", "Are hiders allowed to freeze in the air? (Default: 0)", FCVAR_PLUGIN, true, 0.00, true, 1.00);
@@ -159,19 +152,18 @@ static void CreateConVars() {
 }
 
 static void RegisterCommands() {
-    RegConsoleCmd("hide", Menu_SelectModel, "Opens a menu with different models to choose as hider.");
-    RegConsoleCmd("hidemenu", Menu_SelectModel, "Opens a menu with different models to choose as hider.");
-    RegConsoleCmd("tp", Toggle_ThirdPerson, "Toggles the view to thirdperson for hiders.");
-    RegConsoleCmd("thirdperson", Toggle_ThirdPerson, "Toggles the view to thirdperson for hiders.");
-    RegConsoleCmd("third", Toggle_ThirdPerson, "Toggles the view to thirdperson for hiders.");
-    RegConsoleCmd("+3rd", Enable_ThirdPerson, "Set the view to thirdperson for hiders.");
-    RegConsoleCmd("-3rd", Disable_ThirdPerson, "Set the view to firstperson for hiders.");
-    RegConsoleCmd("jointeam", Command_JoinTeam);
-    RegConsoleCmd("whistle", Play_Whistle, "Plays a random sound from the hiders position to give the seekers a hint.");
-    RegConsoleCmd("whoami", Display_ModelName, "Displays the current models description in chat.");
-    RegConsoleCmd("hidehelp", Display_Help, "Displays a panel with informations how to play.");
-    RegConsoleCmd("freeze", Freeze_Cmd, "Toggles freezing for hiders.");
-    RegConsoleCmd("ct", RequestCT, "Requests a switch to the seeking side.");
+    RegConsoleCmd("rules", Cmd_DisplayHelp, "Displays a panel with information on how to play.");
+    RegConsoleCmd("hide", Cmd_SelectModelMenu, "Opens a menu with different models to choose as hider.");
+    RegConsoleCmd("prop", Cmd_SelectModelMenu, "Opens a menu with different models to choose as hider.");
+    RegConsoleCmd("model", Cmd_SelectModelMenu, "Opens a menu with different models to choose as hider.");
+    RegConsoleCmd("tp", Cmd_ToggleThirdPerson, "Toggles the view to thirdperson for hiders.");
+    RegConsoleCmd("thirdperson", Cmd_ToggleThirdPerson, "Toggles the view to thirdperson for hiders.");
+    RegConsoleCmd("third", Cmd_ToggleThirdPerson, "Toggles the view to thirdperson for hiders.");
+    RegConsoleCmd("jointeam", Cmd_JoinTeam);
+    RegConsoleCmd("whistle", Cmd_PlayWhistle, "Plays a random sound from the hiders position to give the seekers a hint.");
+    RegConsoleCmd("whoami", Cmd_DisplayModelName, "Displays the current models description in chat.");
+    RegConsoleCmd("freeze", Cmd_Freeze, "Toggles freezing for hiders.");
+    RegConsoleCmd("ct", Cmd_RequestCT, "Requests a switch to the seeking side.");
 
     RegAdminCmd("ph_force_whistle", ForceWhistle, ADMFLAG_CHAT, "Force a player to whistle");
     RegAdminCmd("ph_reload_models", ReloadModels, ADMFLAG_RCON, "Reload the modellist from the map config file.");
@@ -199,13 +191,11 @@ static void AddListeners() {
 static void SetOffsets() {
     g_Freeze = FindSendPropOffs("CBasePlayer", "m_fFlags");
     g_flLaggedMovementValue = FindSendPropOffs("CCSPlayer", "m_flLaggedMovementValue");
-    g_flProgressBarStartTime = FindSendPropOffs("CCSPlayer", "m_flProgressBarStartTime");
-    g_iProgressBarDuration = FindSendPropOffs("CCSPlayer", "m_iProgressBarDuration");
 }
 
 static void LoadLang() {
-    LoadTranslations("plugin.hide_and_seek");
-    LoadTranslations("common.phrases"); // for FindTarget()
+    LoadTranslations("plugin.prophunt");
+    LoadTranslations("common.phrases");
 }
 
 #include "prophunt/roundevents.sp"
@@ -216,6 +206,4 @@ static void LoadLang() {
 #include "prophunt/models.sp"
 #include "prophunt/spectate.sp"
 #include "prophunt/teambalance.sp"
-#include "prophunt/natives_phentity.sp"
-#include "prophunt/natives_phclient.sp"
 

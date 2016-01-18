@@ -63,7 +63,6 @@ stock void Client_ReCreateFakeProp(PHClient client) {
     //Create Fake Model
     int entity = CreateEntityByName("prop_physics_override");
     if (IsValidEntity(entity)) {
-        //g_iEntity[client] = entity;
         PrecacheModel(fullPath, true);
         SetEntityModel(entity, fullPath);
         SetEntityMoveType(entity, MOVETYPE_NONE);
@@ -79,11 +78,11 @@ stock void Client_ReCreateFakeProp(PHClient client) {
         SetEntityRenderMode(client.index, RENDER_NONE);
         SetEntityRenderMode(entity, RENDER_TRANSCOLOR);
 
-        float vecClientOrigin[3];
-        client.GetOrigin(vecClientOrigin);
-        TeleportEntity(entity, vecClientOrigin, NULL_VECTOR, NULL_VECTOR);
-
-        client.SetChild(new PHEntity(entity));
+        PHEntity child = new PHEntity(entity);
+        //child.TeleportTo(client);
+        client.SetChild(child);
+        if (client.isFreezed)
+            client.DetachChild();
     } else {
         client.RemoveChild();
     }
@@ -101,7 +100,7 @@ stock void SetRandomModel(int _client) {
     int RandomNumber = GetRandomInt(0, g_iTotalModelsAvailable - 1);
 
     // set the model
-    KvGetStringByIndex(g_hMenuKV, RandomNumber, ModelPath, sizeof(ModelPath));
+    KvGetKeyByIndex(g_hMenuKV, RandomNumber, ModelPath, sizeof(ModelPath));
 
     FormatEx(finalPath, sizeof(finalPath), "models/%s.mdl", ModelPath);
 
@@ -109,16 +108,16 @@ stock void SetRandomModel(int _client) {
     Client_ReCreateFakeProp(client);
 
     if (!IsFakeClient(client.index)) {
-        KvGetKeyByIndex(g_hMenuKV, RandomNumber, ModelName, sizeof(ModelName));
+        KvGetString(g_hMenuKV, ModelPath, ModelName, sizeof(ModelName));
         PrintToChat(client.index, "%s%t \x01%s.", PREFIX, "Model Changed", ModelName);
     }
 
     KvRewind(g_hMenuKV);
     g_iModelChangeCount[client.index]++;
 
-    // display the help menu afterwards on first spawn
-    if (GetConVarBool(cvar_ShowHideHelp) && g_bFirstSpawn[client.index]) {
-        Display_Help(client.index, 0);
+    // display the help menu on first spawn
+    if (GetConVarBool(cvar_ShowHelp) && g_bFirstSpawn[client.index]) {
+        Cmd_DisplayHelp(client.index, 0);
         g_bFirstSpawn[client.index] = false;
     }
 }
@@ -148,31 +147,9 @@ public Action ReloadModels(int client, int args) {
 
     // rebuild it
     BuildMainMenu();
-    BuildMainMenu(true);
 
-    ReplyToCommand(client, "Hide and Seek: Reloaded config.");
-
-    return Plugin_Handled;
-}
-
-// say /whoami
-// displays the model name in chat again
-public Action Display_ModelName(int client, int args) {
-    // only enable command, if player already chose a model
-    if (!IsPlayerAlive(client) || g_iModelChangeCount[client] == 0)
-        return Plugin_Handled;
-
-    // only Ts can use a model
-    if (GetClientTeam(client) != CS_TEAM_T) {
-        PrintToChat(client, "%s%t", PREFIX, "Only terrorists can use");
-        return Plugin_Handled;
-    }
-
-    char modelName[128];
-    GetClientModel(client, modelName, sizeof(modelName));
-    PrintToChat(client, "%s%t\x01 %s.", PREFIX, "Model Changed", modelName);
+    ReplyToCommand(client, "PropHunt: Reloaded config.");
 
     return Plugin_Handled;
 }
-
 

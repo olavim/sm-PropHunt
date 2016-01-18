@@ -1,7 +1,7 @@
 #include "prophunt/include/phclient.inc"
 
 // say /tp /third /thirdperson
-public Action Toggle_ThirdPerson(int client, int args) {
+public Action Cmd_ToggleThirdPerson(int client, int args) {
     if (!IsClientInGame(client) || !IsPlayerAlive(client))
         return Plugin_Stop;
 
@@ -21,45 +21,8 @@ public Action Toggle_ThirdPerson(int client, int args) {
     return Plugin_Continue;
 }
 
-// say /+3rd
-public Action Enable_ThirdPerson(int client, int args) {
-    if (!IsClientInGame(client) || !IsPlayerAlive(client))
-        return Plugin_Stop;
-
-    // Only allow Terrorists to use thirdperson view
-    if (GetClientTeam(client) != CS_TEAM_T) {
-        PrintToChat(client, "%s%t", PREFIX, "Only terrorists can use");
-        return Plugin_Handled;
-    }
-
-    if (!g_bInThirdPersonView[client]) {
-        SetThirdPersonView(client, true);
-        PrintToChat(client, "%s%t", PREFIX, "Type again for ego");
-    }
-
-    return Plugin_Continue;
-}
-
-// say /-3rd
-public Action Disable_ThirdPerson(int client, int args) {
-    if (!IsClientInGame(client) || !IsPlayerAlive(client))
-        return Plugin_Stop;
-
-    // Only allow Terrorists to use thirdperson view
-    if (GetClientTeam(client) != CS_TEAM_T) {
-        PrintToChat(client, "%s%t", PREFIX, "Only terrorists can use");
-        return Plugin_Handled;
-    }
-
-    if (g_bInThirdPersonView[client]) {
-        SetThirdPersonView(client, false);
-    }
-
-    return Plugin_Continue;
-}
-
 // say /whistle
-public Action Play_Whistle(int _client, int args) {
+public Action Cmd_PlayWhistle(int _client, int args) {
     PHClient client = GetPHClient(_client);
 
     // check if whistling is enabled
@@ -121,40 +84,15 @@ public Action Play_Whistle(int _client, int args) {
     return Plugin_Handled;
 }
 
-// say /hidehelp
-// Show the help menu
-public Action Display_Help(int client, int args) {
-    Menu menu = new Menu(Menu_Help);
-
-    char buffer[512];
-    Format(buffer, sizeof(buffer), "%T", "HnS Help", client);
-    SetMenuTitle(menu, buffer);
-    SetMenuExitButton(menu, true);
-
-    Format(buffer, sizeof(buffer), "%T", "Running HnS", client);
-    AddMenuItem(menu, "", buffer);
-
-    Format(buffer, sizeof(buffer), "%T", "Instructions 1", client);
-    AddMenuItem(menu, "", buffer);
-
-    AddMenuItem(menu, "", "", ITEMDRAW_SPACER);
-
-    Format(buffer, sizeof(buffer), "%T", "Available Commands", client);
-    AddMenuItem(menu, "1", buffer);
-
-    Format(buffer, sizeof(buffer), "%T", "Howto CT", client);
-    AddMenuItem(menu, "2", buffer);
-
-    Format(buffer, sizeof(buffer), "%T", "Howto T", client);
-    AddMenuItem(menu, "3", buffer);
-
-    DisplayMenu(menu, client, MENU_TIME_FOREVER);
+// say /help
+public Action Cmd_DisplayHelp(int client, int args) {
+    ShowMOTDPanel(client, "PropHunt", "https://tilastokeskus.github.io/sm-PropHunt/r_rules.html", MOTDPANEL_TYPE_URL);
     return Plugin_Handled;
 }
 
 // say /freeze
 // Freeze hiders in position
-public Action Freeze_Cmd(int _client, int args) {
+public Action Cmd_Freeze(int _client, int args) {
     PHClient client = GetPHClient(_client);
     if (!GetConVarInt(cvar_HiderFreezeMode) || client.team != CS_TEAM_T || !client.isAlive)
         return Plugin_Handled;
@@ -204,4 +142,115 @@ public Action ForceWhistle(int client, int args) {
     }
 
     return Plugin_Handled;
+}
+
+// say /whoami
+// displays the model name in chat again
+public Action Cmd_DisplayModelName(int client, int args) {
+
+    // only enable command, if player already chose a model
+    if (!IsPlayerAlive(client) || g_iModelChangeCount[client] == 0)
+        return Plugin_Handled;
+
+    // only Ts can use a model
+    if (GetClientTeam(client) != CS_TEAM_T) {
+        PrintToChat(client, "%s%t", PREFIX, "Only terrorists can use");
+        return Plugin_Handled;
+    }
+
+    char modelName[128];
+    GetClientModel(client, modelName, sizeof(modelName));
+    PrintToChat(client, "%s%t\x01 %s.", PREFIX, "Model Changed", modelName);
+
+    return Plugin_Handled;
+}
+
+// say /ct
+public Action Cmd_RequestCT(int client, int args) {
+    if (GetClientTeam(client) == CS_TEAM_CT) {
+        PrintToChat(client, "%s You are already on the seeking side", PREFIX);
+        return Plugin_Handled;
+    }
+
+    if (g_iHiderToSeekerQueue[client] != NOT_IN_QUEUE) {
+        PrintToChat(client, "%s You are already in the queue", PREFIX);
+        return Plugin_Stop;
+    }
+
+    g_iHidersInSeekerQueue++;
+    g_iHiderToSeekerQueue[client] = g_iHidersInSeekerQueue;
+
+    PrintToChat(client, "%s You are now in the seeker queue", PREFIX);
+    PrintToChat(client, "%s Turns until team switch: %d", PREFIX, SimulateTurnsToSeeker(g_iHidersInSeekerQueue));
+
+    return Plugin_Handled;
+}
+
+public Action Cmd_JoinTeam(int client, int args) {
+    PrintToServer("CT ratio: %f", GetConVarFloat(cvar_CTRatio));
+    if (!client || !IsClientInGame(client) || FloatCompare(GetConVarFloat(cvar_CTRatio), 0.0) == 0) {
+        PrintToServer("JoinTeam: team balance disabled");
+        return Plugin_Continue;
+    }
+
+    char arg[5];
+    if (!GetCmdArgString(arg, sizeof(arg))) {
+        return Plugin_Continue;
+    }
+
+    int team = StringToInt(arg);
+
+    // Player wants to join CT
+    if (team == CS_TEAM_CT) {
+        int iCTCount = GetTeamClientCount(CS_TEAM_CT);
+        int iTCount = GetTeamClientCount(CS_TEAM_T);
+
+        // This client would be in CT if we continue.
+        iCTCount++;
+
+        // And would leave T
+        if (GetClientTeam(client) == CS_TEAM_T)
+            iTCount--;
+
+        // Check, how many terrors are going to get switched to ct at the end of the round
+        for (int i = 1; i <= MaxClients; i++) {
+            if (g_bCTToSwitch[i]) {
+                iCTCount--;
+                iTCount++;
+            }
+        }
+
+        float fRatio = FloatDiv(float(iCTCount), float(iTCount));
+
+        float fCFGRatio = FloatDiv(1.0, GetConVarFloat(cvar_CTRatio));
+
+        //PrintToServer("Debug: Player %N wants to join CT. CTCount: %d TCount: %d Ratio: %f", client, iCTCount, iTCount, FloatDiv(float(iCTCount), float(iTCount)));
+
+        // There are more CTs than we want in the CT team.
+        if (iCTCount > 1 && fRatio > fCFGRatio) {
+            PrintCenterText(client, "CT team is full");
+            //PrintToServer("Debug: Blocked.");
+            return Plugin_Stop;
+        }
+    } else if (team == CS_TEAM_T) {
+        int iCTCount = GetTeamClientCount(CS_TEAM_CT);
+        int iTCount = GetTeamClientCount(CS_TEAM_T);
+
+        iTCount++;
+
+        if (GetClientTeam(client) == CS_TEAM_CT)
+            iCTCount--;
+
+        if (iCTCount == 0 && iTCount >= 2) {
+            PrintCenterText(client, "Cannot leave CT empty");
+            //PrintToServer("Debug: Blocked.");
+            return Plugin_Stop;
+        }
+    }
+
+    return Plugin_Continue;
+}
+
+public Action Cmd_SelectModelMenu(int client, int args) {
+   return ShowSelectModelMenu(client, args); 
 }

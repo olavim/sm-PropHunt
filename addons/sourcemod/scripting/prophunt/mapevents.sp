@@ -4,7 +4,6 @@
 
 public void OnMapStart() {
     BuildMainMenu();
-    BuildMainMenu(true);
 
     for (int i = 0; i < sizeof(whistle_sounds); i++)
         ReadySound(whistle_sounds[i]);

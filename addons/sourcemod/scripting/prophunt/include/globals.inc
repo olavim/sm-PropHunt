@@ -32,8 +32,7 @@ Handle cvar_DisableDucking = INVALID_HANDLE;
 Handle cvar_AutoThirdPerson = INVALID_HANDLE;
 Handle cvar_HiderFreezeMode = INVALID_HANDLE;
 Handle cvar_HideBlood = INVALID_HANDLE;
-Handle cvar_ShowHideHelp = INVALID_HANDLE;
-Handle cvar_ShowProgressBar = INVALID_HANDLE;
+Handle cvar_ShowHelp = INVALID_HANDLE;
 Handle cvar_CTRatio = INVALID_HANDLE;
 Handle cvar_DisableUse = INVALID_HANDLE;
 Handle cvar_HiderFreezeInAir = INVALID_HANDLE;
@@ -108,9 +107,6 @@ Handle g_hMenuKV;
 
 int g_Freeze;
 int g_flLaggedMovementValue;
-int g_flProgressBarStartTime;
-int g_iProgressBarDuration;
-int g_iAccount;
 
 /* models ------------------------------------------------- */
 
@@ -123,16 +119,16 @@ int g_iLowModelSteps[MAXPLAYERS] = {0, ...};
 /* sounds ------------------------------------------------- */
 
 char whistle_sounds[][] = {
-    "hns/whistles/baby.mp3",
-    "hns/whistles/balls_of_steel.mp3",
-    "hns/whistles/cant_touch_this.mp3",
-    "hns/whistles/nyan_cat.mp3",
-    "hns/whistles/rick_roll.mp3",
-    "hns/whistles/vader.mp3",
-    "hns/whistles/yakety_sax.mp3"
+    "prophunt/whistles/baby.mp3",
+    "prophunt/whistles/balls_of_steel.mp3",
+    "prophunt/whistles/cant_touch_this.mp3",
+    "prophunt/whistles/nyan_cat.mp3",
+    "prophunt/whistles/rick_roll.mp3",
+    "prophunt/whistles/vader.mp3",
+    "prophunt/whistles/yakety_sax.mp3"
 };
 
-char g_sndFreeze[] = "hns/beep.mp3";
+char g_sndFreeze[] = "prophunt/beep.mp3";
 
 /* misc ------------------------------------------------- */
 

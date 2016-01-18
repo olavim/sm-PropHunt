@@ -105,11 +105,11 @@ public Action OnPlayerRunCmd(int _client, int &buttons, int &impulse, float vel[
     bool moving = buttons & IN_FORWARD || buttons & IN_BACK || buttons & IN_MOVELEFT || buttons & IN_MOVERIGHT || buttons & IN_JUMP;
     if (client.isAlive && client.team == CS_TEAM_T) {
         if (client.isFreezed && moving) {
-            Freeze_Cmd(client.index, 0);
+            Cmd_Freeze(client.index, 0);
         }
 
         float AutoFreezeTime = GetConVarFloat(cvar_AutoFreezeTime);
-        if (moving) {
+        if (moving && g_hAutoFreezeTimers[client.index] != INVALID_HANDLE) {
             UnsetTimer(g_hAutoFreezeTimers[client.index]);
         } else if (AutoFreezeTime && !client.isFreezed && g_hAutoFreezeTimers[client.index] == INVALID_HANDLE) {
             g_hAutoFreezeTimers[client.index] = CreateTimer(AutoFreezeTime, Timer_AutoFreezeClient, client);
@@ -274,13 +274,15 @@ public Action Timer_RemoveClientRadar(Handle timer, PHClient client) {
 public Action Timer_AutoFreezeClient(Handle handle, PHClient client) {
     if (!client)
         return Plugin_Stop;
+
+    g_hAutoFreezeTimers[client.index] = INVALID_HANDLE;
+
     if (!client.isConnected) {
-        g_hAutoFreezeTimers[client.index] = INVALID_HANDLE;
         return Plugin_Stop;
     }
 
     if (!client.isFreezed)
-        Freeze_Cmd(client.index, 0);
+        Cmd_Freeze(client.index, 0);
 
     return Plugin_Continue;
 }
@@ -297,8 +299,9 @@ public Action Timer_FreezePlayer(Handle timer, PHClient client) {
     if (!client)
         return Plugin_Stop;
 
+    g_hFreezeCTTimer[client.index] = INVALID_HANDLE;
+
     if (!client.isConnected || !client.isAlive || !g_bIsCTWaiting[client.index]) {
-        g_hFreezeCTTimer[client.index] = INVALID_HANDLE;
         return Plugin_Stop;
     }
 
@@ -343,14 +346,6 @@ public Action Timer_ShowClientCountdown(Handle timer, int freezeTime) {
     PrintCenterTextAll("%d", seconds);
     if (seconds <= 0) {
         g_hShowCountdownTimer = INVALID_HANDLE;
-        if (GetConVarBool(cvar_ShowProgressBar)) {
-            for (int i = 1; i <= MaxClients; i++) {
-                if (IsClientInGame(i)) {
-                    SetEntDataFloat(i, g_flProgressBarStartTime, 0.0, true);
-                    SetEntData(i, g_iProgressBarDuration, 0, 4, true);
-                }
-            }
-        }
         return Plugin_Stop;
     }
 
@@ -442,8 +437,8 @@ static void HandleCTSpawn(PHClient client) {
     }
 
     // show help menu on first spawn
-    if (GetConVarBool(cvar_ShowHideHelp) && g_bFirstSpawn[client.index]) {
-        Display_Help(client.index, 0);
+    if (GetConVarBool(cvar_ShowHelp) && g_bFirstSpawn[client.index]) {
+        Cmd_DisplayHelp(client.index, 0);
         g_bFirstSpawn[client.index] = false;
     }
 

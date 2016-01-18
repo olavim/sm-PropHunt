@@ -4,7 +4,6 @@
 public int Menu_Group(Handle menu, MenuAction action, int _client, int param2) {
     PHClient client = GetPHClient(_client);
 
-    // make sure again, the player is a Terrorist
     if (client && client.team == CS_TEAM_T && g_bAllowModelChange[client.index]) {
         if (action == MenuAction_Select) {
             char info[100], info2[100], sModelPath[100];
@@ -14,36 +13,7 @@ public int Menu_Group(Handle menu, MenuAction action, int _client, int param2) {
                 if (StrEqual(info, "random")) {
                     SetRandomModel(client.index);
                 } else {
-                    // Check for enough money
-                    char sTax[32];
-                    int iPosition;
-                    if ((iPosition = StrContains(info, "||t_")) != -1) {
-                        int iAccountValue = GetEntData(client.index, g_iAccount);
-
-                        // Stupid string information storage-.-
-                        int iPosition2 = StrContains(info[iPosition + 4], "||hi_");
-                        if (iPosition2 != -1)
-                            strcopy(sTax, iPosition2 - iPosition + 3, info[iPosition + 4]);
-                        else
-                            strcopy(sTax, sizeof(sTax), info[iPosition + 4]);
-
-                        int iTax = StringToInt(sTax);
-                        // He doesnt have enough money?
-                        if (iTax > iAccountValue) {
-                            PrintToChat(client.index, "%s%t", PREFIX, "not enough money");
-                            // Show the menu again
-                            Menu_SelectModel(client.index, 0);
-                            return;
-                        }
-
-                        // Get the money
-                        SetEntData(client.index, g_iAccount, (iAccountValue - iTax), 4, true);
-
-                        PrintToChat(client.index, "%s%t", PREFIX, "tax charged", iTax);
-                    }
-
-                    if (SplitString(info, "||", sModelPath, sizeof(sModelPath)) == -1)
-                        strcopy(sModelPath, sizeof(sModelPath), info);
+                    strcopy(sModelPath, sizeof(sModelPath), info);
 
                     SetEntityModel(client.index, sModelPath);
                     Client_ReCreateFakeProp(client);
@@ -56,9 +26,9 @@ public int Menu_Group(Handle menu, MenuAction action, int _client, int param2) {
             PrintToChat(client.index, "%s%t", PREFIX, "Type !hide");
         }
 
-        // display the help menu afterwards on first spawn
-        if (GetConVarBool(cvar_ShowHideHelp) && g_bFirstSpawn[client.index]) {
-            Display_Help(client.index, 0);
+        // display the help menu on first spawn
+        if (GetConVarBool(cvar_ShowHelp) && g_bFirstSpawn[client.index]) {
+            Cmd_DisplayHelp(client.index, 0);
             g_bFirstSpawn[client.index] = false;
         }
     }
@@ -147,39 +117,44 @@ public int Menu_Help(Handle menu, MenuAction action, int param1, int param2) {
 public int Menu_Dummy(Handle menu, MenuAction action, int param1, int param2) {
     if (action == MenuAction_Cancel && param2 != MenuCancel_Exit) {
         if (IsClientInGame(param1))
-            Display_Help(param1, 0);
+            Cmd_DisplayHelp(param1, 0);
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
 }
 
-// read the hide_and_seek map config
-stock void BuildMainMenu(bool loadDefault=false) {
+stock void BuildMainMenu() {
+    PrintToServer("Debug: BuildMainMenu");
     g_iTotalModelsAvailable = 0;
 
     g_hMenuKV = CreateKeyValues("Models");
-    char file[256], map[64], title[64], finalOutput[100];
+    char mapFile[256], defFile[256], map[64], title[64], finalOutput[100];
+    KeyValues mapKV = new KeyValues("Models");
+
     GetCurrentMap(map, sizeof(map));
 
-    BuildPath(Path_SM, file, 255, "configs/hide_and_seek/maps_csgo/%s.cfg", map);
-    if (!FileExists(file) || loadDefault) {
-        BuildPath(Path_SM, file, 255, "configs/hide_and_seek/maps_csgo/default.cfg");
-    }
+    BuildPath(Path_SM, mapFile, 255, "configs/prophunt/%s.cfg", map);
+    BuildPath(Path_SM, defFile, 255, "configs/prophunt/default.cfg");
 
-    FileToKeyValues(g_hMenuKV, file);
+    FileToKeyValues(g_hMenuKV, defFile);
+    FileToKeyValues(mapKV, mapFile);
+    KvMerge(g_hMenuKV, mapKV);
+    KeyValuesToFile(g_hMenuKV, "kvdump.txt");
 
     char name[30];
     char path[100];
     int index = 0;
-    while (KvGetKeyByIndex(g_hMenuKV, index, name, sizeof(name))) {
+    while (KvGetKeyByIndex(g_hMenuKV, index, path, sizeof(path))) {
 
         // get the model path and precache it
-        KvGetString(g_hMenuKV, name, path, sizeof(path));
+        KvGetStringByIndex(g_hMenuKV, index, name, sizeof(name));
         FormatEx(finalOutput, sizeof(finalOutput), "models/%s.mdl", path);
         PrecacheModel(finalOutput, true);
 
+        PrintToServer("Debug: key: %s value: %s", path, name);
         if (strlen(name) > 0) {
             if (g_hModelMenu == INVALID_HANDLE) {
+                PrintToServer("set menu");
                 g_hModelMenu = new Menu(Menu_Group);
                 Format(title, sizeof(title), "%T:", "Title Select Model", LANG_SERVER);
 
@@ -187,10 +162,8 @@ stock void BuildMainMenu(bool loadDefault=false) {
                 SetMenuExitButton(g_hModelMenu, true);
 
                 // Add random option
-                if (!loadDefault) {
-                    Format(title, sizeof(title), "%T", "random", LANG_SERVER);
-                    AddMenuItem(g_hModelMenu, "random", title);
-                }
+                Format(title, sizeof(title), "%T", "random", LANG_SERVER);
+                AddMenuItem(g_hModelMenu, "random", title);
             }
 
             AddMenuItem(g_hModelMenu, finalOutput, name);
@@ -201,13 +174,13 @@ stock void BuildMainMenu(bool loadDefault=false) {
     }
     KvRewind(g_hMenuKV);
 
-    if (g_iTotalModelsAvailable == 0) {
+    delete mapKV;
+
+    if (g_iTotalModelsAvailable == 0)
         SetFailState("No models parsed in %s.cfg", map);
-        return;
-    }
 }
 
-public Action Menu_SelectModel(int client, int args) {
+public Action ShowSelectModelMenu(int client, int args) {
     if (g_hModelMenu == INVALID_HANDLE) {
         return Plugin_Stop;
     }

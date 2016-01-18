@@ -175,26 +175,6 @@ public void ChangeTeam(int client, int iCTCount, int iTCount) {
     //PrintToServer("Debug: CT: %d T: %d", iCTCount, iTCount);
 }
 
-public Action RequestCT(int client, int args) {
-    if (GetClientTeam(client) == CS_TEAM_CT) {
-        PrintToChat(client, "%s You are already on the seeking side", PREFIX);
-        return Plugin_Handled;
-    }
-
-    if (g_iHiderToSeekerQueue[client] != NOT_IN_QUEUE) {
-        PrintToChat(client, "%s You are already in the queue", PREFIX);
-        return Plugin_Stop;
-    }
-
-    g_iHidersInSeekerQueue++;
-    g_iHiderToSeekerQueue[client] = g_iHidersInSeekerQueue;
-
-    PrintToChat(client, "%s You are now in the seeker queue", PREFIX);
-    PrintToChat(client, "%s Turns until team switch: %d", PREFIX, SimulateTurnsToSeeker(g_iHidersInSeekerQueue));
-
-    return Plugin_Handled;
-}
-
 public int SimulateTurnsToSeeker(int queueOrder) {
     int turns;
     int guaranteedCTTurns[MAXPLAYERS];
@@ -255,67 +235,3 @@ public void SwitchNextHiderInQueue() {
     }
 }
 
-public Action Command_JoinTeam(int client, int args) {
-    PrintToServer("CT ratio: %f", GetConVarFloat(cvar_CTRatio));
-    if (!client || !IsClientInGame(client) || FloatCompare(GetConVarFloat(cvar_CTRatio), 0.0) == 0) {
-        PrintToServer("JoinTeam: team balance disabled");
-        return Plugin_Continue;
-    }
-
-    char arg[5];
-    if (!GetCmdArgString(arg, sizeof(arg))) {
-        return Plugin_Continue;
-    }
-
-    int team = StringToInt(arg);
-
-    // Player wants to join CT
-    if (team == CS_TEAM_CT) {
-        int iCTCount = GetTeamClientCount(CS_TEAM_CT);
-        int iTCount = GetTeamClientCount(CS_TEAM_T);
-
-        // This client would be in CT if we continue.
-        iCTCount++;
-
-        // And would leave T
-        if (GetClientTeam(client) == CS_TEAM_T)
-            iTCount--;
-
-        // Check, how many terrors are going to get switched to ct at the end of the round
-        for (int i = 1; i <= MaxClients; i++) {
-            if (g_bCTToSwitch[i]) {
-                iCTCount--;
-                iTCount++;
-            }
-        }
-
-        float fRatio = FloatDiv(float(iCTCount), float(iTCount));
-
-        float fCFGRatio = FloatDiv(1.0, GetConVarFloat(cvar_CTRatio));
-
-        //PrintToServer("Debug: Player %N wants to join CT. CTCount: %d TCount: %d Ratio: %f", client, iCTCount, iTCount, FloatDiv(float(iCTCount), float(iTCount)));
-
-        // There are more CTs than we want in the CT team.
-        if (iCTCount > 1 && fRatio > fCFGRatio) {
-            PrintCenterText(client, "CT team is full");
-            //PrintToServer("Debug: Blocked.");
-            return Plugin_Stop;
-        }
-    } else if (team == CS_TEAM_T) {
-        int iCTCount = GetTeamClientCount(CS_TEAM_CT);
-        int iTCount = GetTeamClientCount(CS_TEAM_T);
-
-        iTCount++;
-
-        if (GetClientTeam(client) == CS_TEAM_CT)
-            iCTCount--;
-
-        if (iCTCount == 0 && iTCount >= 2) {
-            PrintCenterText(client, "Cannot leave CT empty");
-            //PrintToServer("Debug: Blocked.");
-            return Plugin_Stop;
-        }
-    }
-
-    return Plugin_Continue;
-}
