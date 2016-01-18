@@ -13,7 +13,7 @@ Although this plugin has essentially been written from scratch, many snippets or
 
 ```
 /rules                    Show instructions on how to play.
-/hide /hidemenu           Opens a menu with different models to choose as a hider.
+/hide /prop /model        Opens a menu with different models to choose as a hider.
 /tp /third /thirdperson   Toggles thirdperson view for hiders
 /+3rd                     Set to thirdperson view for hiders.
 /-3rd                     Set to firstperson view for hiders.
