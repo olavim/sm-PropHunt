@@ -28,7 +28,7 @@ I'm publishing this under the MIT licence, but I don't really give a shit.
 #include "prophunt/include/utils.inc"
 #pragma newdecls required
 
-#define PLUGIN_VERSION "1.0"
+#define PLUGIN_VERSION "1.0.1"
 
 public Plugin myinfo = {
     name = "PropHunt",
