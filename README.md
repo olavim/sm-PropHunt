@@ -72,7 +72,8 @@ If you download this project zipped, just extract everything to your server's CS
 - `addons/sourcemod/translations/plugin.prophunt.txt`
 - `sound/prophunt/` and all the files inside. This will be configurable in the future.
 
-If everything seems to be in order, go and fire up the server! A config file should have been generated in `cfg/sourcemod/plugin.prophunt.cfg`. Edit it as you see fit and restart your server to see the changes.
+If everything seems to be in order, go and fire up the server! A config file should have been generated in
+`cfg/sourcemod/plugin.prophunt.cfg`. Edit it as you see fit and restart your server to see the changes.
 
 ## Configuring model lists
 
