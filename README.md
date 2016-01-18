@@ -110,7 +110,7 @@ To add props yourself you will need to find out the paths. I used the Hammer edi
 
 Custom whistles may be specified by modifying `addons/sourcemod/configs/whistles.cfg`. To add a whistle, simply specify its path on a new line. The paths of the whistles should be relative to the `sound` directory (in the root directory of your CS:GO installation), so that if you had the sound file `sound/awesome/brilliant.mp3`, you would specify it just as `awesome/brilliant.mp3`.
 
-Additionally, only **mp3** sound files seem work.
+Additionally, only **mp3** sound files seem work, except if they are in-game sounds. You can find the paths to in-game sounds from files such as `game_sounds.txt`, `game_sounds_ambient_generic.txt`, etc., which are located in `scripts` folder in your CS:GO installation's root folder.
 
 ## Compiling
 
