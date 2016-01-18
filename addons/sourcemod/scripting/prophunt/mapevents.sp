@@ -1,12 +1,18 @@
 
 #include "prophunt/include/globals.inc"
 #include "prophunt/include/utils.inc"
+#include "prophunt/include/whistles.inc"
 
 public void OnMapStart() {
     BuildMainMenu();
+    LoadWhistles();
 
-    for (int i = 0; i < sizeof(whistle_sounds); i++)
-        ReadySound(whistle_sounds[i]);
+    char sound[MAX_WHISTLE_LENGTH];
+    int numWhistles = g_WhistleSounds.Length;
+    for (int i = 0; i < numWhistles; i++) {
+        g_WhistleSounds.GetString(i, sound, sizeof(sound));
+        ReadySound(sound);
+    }
 
     PrecacheSound("radio/go.wav");
     ReadySound(g_sndFreeze);

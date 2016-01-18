@@ -4,11 +4,15 @@
 #endif
 #define _globals_included
 
-#define PREFIX          "\x03[PropHunt] \x05"
+#define PREFIX              "\x03[PropHunt] \x05"
 
-#define NOT_IN_QUEUE    -1
-#define FFADE_STAYOUT   0x0008
-#define FFADE_PURGE     0x0010
+#define NOT_IN_QUEUE        -1
+#define FFADE_STAYOUT       0x0008
+#define FFADE_PURGE         0x0010
+#define MAP_CONFIG_PATH     "configs/prophunt/maps"
+#define WHISTLE_CONFIG_PATH "configs/prophunt/whistles.cfg"
+#define MAX_WHISTLES        128
+#define MAX_WHISTLE_LENGTH  128
 
 /* cvars ------------------------------------------------- */
 
@@ -118,16 +122,7 @@ int g_iLowModelSteps[MAXPLAYERS] = {0, ...};
 
 /* sounds ------------------------------------------------- */
 
-char whistle_sounds[][] = {
-    "prophunt/whistles/baby.mp3",
-    "prophunt/whistles/balls_of_steel.mp3",
-    "prophunt/whistles/cant_touch_this.mp3",
-    "prophunt/whistles/nyan_cat.mp3",
-    "prophunt/whistles/rick_roll.mp3",
-    "prophunt/whistles/vader.mp3",
-    "prophunt/whistles/yakety_sax.mp3"
-};
-
+ArrayList g_WhistleSounds;
 char g_sndFreeze[] = "prophunt/beep.mp3";
 
 /* misc ------------------------------------------------- */

@@ -43,7 +43,11 @@ public Action Cmd_PlayWhistle(int _client, int args) {
 
     int cvarWhistleTimes = GetConVarInt(cvar_WhistleTimes);
     char buffer[128];
-    Format(buffer, sizeof(buffer), "*/%s", whistle_sounds[GetRandomInt(0, sizeof(whistle_sounds) - 1)]);
+    char sound[MAX_WHISTLE_LENGTH];
+    int soundIndex = GetRandomInt(0, g_WhistleSounds.Length - 1);
+    g_WhistleSounds.GetString(soundIndex, sound, MAX_WHISTLE_LENGTH);
+    PrintToServer("Whistle: %s", sound);
+    Format(buffer, sizeof(buffer), "*/%s", sound);
 
     if (g_iWhistleCount[client.index] < cvarWhistleTimes) {
         if (!cvarWhistleSeeker) {
@@ -135,7 +139,9 @@ public Action ForceWhistle(int client, int args) {
         return Plugin_Handled;
 
     if (GetClientTeam(target) == CS_TEAM_T && IsPlayerAlive(target)) {
-        EmitSoundToAll(whistle_sounds[GetRandomInt(0, sizeof(whistle_sounds) - 1)], target, SNDCHAN_AUTO, SNDLEVEL_GUNFIRE);
+        char sound[MAX_WHISTLE_LENGTH];
+        g_WhistleSounds.GetString(GetRandomInt(0, g_WhistleSounds.Length - 1), sound, MAX_WHISTLE_LENGTH);
+        EmitSoundToAll(sound, target, SNDCHAN_AUTO, SNDLEVEL_GUNFIRE);
         PrintToChatAll("%s%N %t", PREFIX, target, "whistled");
     } else {
         ReplyToCommand(client, "Hide and Seek: %t", "Only terrorists can use");

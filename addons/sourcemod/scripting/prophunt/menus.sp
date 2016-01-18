@@ -133,8 +133,8 @@ stock void BuildMainMenu() {
 
     GetCurrentMap(map, sizeof(map));
 
-    BuildPath(Path_SM, mapFile, 255, "configs/prophunt/%s.cfg", map);
-    BuildPath(Path_SM, defFile, 255, "configs/prophunt/default.cfg");
+    BuildPath(Path_SM, mapFile, 255, "%s/%s.cfg", MAP_CONFIG_PATH,  map);
+    BuildPath(Path_SM, defFile, 255, "%s/default.cfg", MAP_CONFIG_PATH);
 
     FileToKeyValues(g_hMenuKV, defFile);
     FileToKeyValues(mapKV, mapFile);
@@ -151,7 +151,7 @@ stock void BuildMainMenu() {
         FormatEx(finalOutput, sizeof(finalOutput), "models/%s.mdl", path);
         PrecacheModel(finalOutput, true);
 
-        PrintToServer("Debug: key: %s value: %s", path, name);
+        //PrintToServer("Debug: key: %s value: %s", path, name);
         if (strlen(name) > 0) {
             if (g_hModelMenu == INVALID_HANDLE) {
                 PrintToServer("set menu");
