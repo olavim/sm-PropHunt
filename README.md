@@ -5,6 +5,10 @@ The game begins with a countdown: Counter-Terrorists, the seekers, are blinded a
 
 Once the countdown is over, the seekers try to find and kill the hiders. Much like regular old hide and seek from our youth, if not for all the ungodly transforming into toilets and murdering.
 
+---
+
+Although this plugin has essentially been written from scratch, many snippets originate from the Hide and Seek plugin written (and abandoned) by [SelaX](https://forums.alliedmods.net/member.php?u=36536).
+
 ## Commands
 
 ```
