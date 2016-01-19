@@ -61,6 +61,27 @@ ph_guaranteed_ct_turns  	1+		Number of turns after which seekers might be switch
 ph_knifespeed           	0.0+	Running speed when holding a knife (multiplier)
 ```
 
+## Protected server cvars
+
+There are a number of cvars that are "protected", that is, the server enforces their values to ensure fluid gameplay.
+
+```
+mp_flashlight               0
+sv_footsteps                0
+mp_limitteams               0
+mp_autoteambalance          0
+mp_freezetime               0
+sv_nonemesis                1
+sv_nomvp                    1
+sv_nostats                  1
+mp_playerid                 1
+sv_allowminmodels           0
+sv_turbophysics             1
+mp_teams_unbalance_limit    0
+mp_show_voice_icons         0
+spec_freeze_time            -1
+```
+
 ## Installation
 
 This plugin has been tested (and built) on Metamod:Source `1.10.6` and SourceMod `1.7.3`, so go and install those if you haven't already. Earlier versions *might* work, I wouldn't know, but definitely don't count on it.
