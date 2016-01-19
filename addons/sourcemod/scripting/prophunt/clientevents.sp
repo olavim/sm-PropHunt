@@ -223,7 +223,6 @@ public Action Event_OnWeaponFire(Handle event, const char[] name, bool dontBroad
 public Action Event_OnPlayerDeath_Pre(Handle event, const char[] name, bool dontBroadcast) {
     int client = GetClientOfUserId(GetEventInt(event, "userid"));
 
-    SetThirdPersonView(client, false);
     return Plugin_Continue;
 }
 
@@ -232,8 +231,7 @@ public Action Event_OnPlayerDeath(Handle event, const char[] name, bool dontBroa
     PHClient client = GetPHClient(_client);
 
     SetThirdPersonView(client.index, false);
-
-    SendConVarValue(client.index, g_hForceCamera, "1");
+    SendConVarValue(client.index, g_hForceCamera, "0");
 
     if (!IsValidEntity(client.index) || client.isAlive)
         return Plugin_Continue;

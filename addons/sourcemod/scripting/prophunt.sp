@@ -28,7 +28,7 @@ I'm publishing this under the MIT licence, but I don't really give a shit.
 #include "prophunt/include/utils.inc"
 #pragma newdecls required
 
-#define PLUGIN_VERSION "1.0.1"
+#define PLUGIN_VERSION "1.0"
 
 public Plugin myinfo = {
     name = "PropHunt",
@@ -57,6 +57,7 @@ public void OnPluginStart() {
 
     CreateTimer(120.0, SpamCommands, 0);
     g_hForceCamera = FindConVar("mp_forcecamera");
+    g_hSpecNoClip = FindConVar("sv_specnoclip");
 
     AutoExecConfig(true, "prophunt");
 }
@@ -73,6 +74,7 @@ public void OnPluginEnd() {
 }
 
 public void OnConfigsExecuted() {
+
     // set bad server cvars
     for (int i = 0; i < sizeof(protected_cvars); i++) {
         g_hProtectedConvar[i] = FindConVar(protected_cvars[i]);
@@ -148,7 +150,8 @@ static void CreateConVars() {
     cvar_HidePlayerLocation = CreateConVar("ph_hide_player_locations", "1", "Hide the location info shown next to players name on voice chat and teamsay? (Default: 1)", FCVAR_PLUGIN, true, 0.00, true, 1.00);
     cvar_AutoFreezeTime = CreateConVar("ph_auto_freeze_time", "5", "Time after which stationary players should freeze automatically (Default: 5) - 0 to disable", FCVAR_PLUGIN, true, 0.00);
     cvar_GuaranteedCTTurns = CreateConVar("ph_guaranteed_ct_turns", "3", "Turns after which CTs might be switched to the T side (Default: 3) - 0 to never switch", FCVAR_PLUGIN, true, 0.00);
-    cvar_KnifeSpeed = CreateConVar("ph_knifespeed", "2.00", "Running speed when holding a knife (multiplier)", FCVAR_PLUGIN, true, 0.00);
+    cvar_KnifeSpeed = CreateConVar("ph_knifespeed", "1.40", "Running speed when holding a knife (multiplier)", FCVAR_PLUGIN, true, 0.00);
+    cvar_LimitSpec = CreateConVar("ph_limitspec", "2", "0: Do not limit spectating, 1: Limit spectating to own team, 2: Limit spectating to CT. (Default: 2)", FCVAR_PLUGIN, true, 0.00, true, 2.00);
 }
 
 static void RegisterCommands() {

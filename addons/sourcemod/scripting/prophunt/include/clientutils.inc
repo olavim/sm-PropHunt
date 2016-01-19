@@ -6,6 +6,11 @@
 
 #include "prophunt/include/phclient.inc"
 
+#define SPECMODE_NONE           0
+#define SPECMODE_FIRSTPERSON    4
+#define SPECMODE_THIRDPERSON    5
+#define SPECMODE_FREELOOK       6
+
 stock void OfferClientModel(int client) {
     float changeLimitTime = GetConVarFloat(cvar_ChangeLimittime);
 
@@ -142,4 +147,62 @@ static stock bool UTIL_VectorEqual(const float vec1[3], const float vec2[3], con
     return true;
 }
 
+/**
+ * Returns the next or previous client by id.
+ *
+ * @param client        Client from which the searching begins
+ * @param fw            If false, returns a previous client instead of next.
+ * @param team          Limit searching to a specific team, or -1 to search any.
+ * @return The next or previous client.
+ */
+stock int GetNextClient(int client, bool fw=true, int team=-1) {
+    int d = (fw ? 1 : -1);
+    int i = client + d;
+    int begin = (fw ? 1 : MaxClients);
+    int limit = (fw ? MaxClients + 1 : 0);
 
+    while (!IsClientInTeam(i, team)) {
+
+        // move index; if index == limit, move it to the beginning
+        i = (i + d == limit ? begin : i + d);
+
+        // we made a full circle. no suitable client found
+        if (i == client)
+            return -1;
+    }
+
+    return i;
+}
+
+stock bool IsClientInTeam(int client, int team) {
+    return client != 0
+            && IsClientConnected(client)
+            && IsPlayerAlive(client)
+            && (GetClientTeam(client) == team || team == -1);
+}
+
+stock int DetermineSpecMode(int client) {
+    int currMode = GetEntProp(client, Prop_Send, "m_iObserverMode");
+    int limitSpec = GetConVarInt(cvar_LimitSpec);
+    int newMode = currMode + 1;
+    if (newMode > SPECMODE_FREELOOK)
+        newMode = SPECMODE_FIRSTPERSON;
+
+    if (limitSpec == 1 && currMode == SPECMODE_FREELOOK)
+        newMode = SPECMODE_FIRSTPERSON;
+    else if (limitSpec == 2)
+        newMode = SPECMODE_FIRSTPERSON;
+
+    return newMode;
+}
+
+stock int DetermineAllowedSpecTeams(int client) {
+    int limitSpec = GetConVarInt(cvar_LimitSpec);
+    int team = -1;
+    if (limitSpec == 1)
+        team = GetClientTeam(client);
+    else if (limitSpec == 2)
+        team = CS_TEAM_CT;
+
+    return team;
+}
