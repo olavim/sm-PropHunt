@@ -188,7 +188,7 @@ stock int DetermineSpecMode(int client) {
     if (newMode > SPECMODE_FREELOOK)
         newMode = SPECMODE_FIRSTPERSON;
 
-    if (limitSpec == 1 && currMode == SPECMODE_FREELOOK)
+    if (limitSpec == 1 && newMode == SPECMODE_FREELOOK)
         newMode = SPECMODE_FIRSTPERSON;
     else if (limitSpec == 2)
         newMode = SPECMODE_FIRSTPERSON;

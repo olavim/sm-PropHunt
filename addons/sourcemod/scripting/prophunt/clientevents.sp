@@ -27,7 +27,7 @@ public Action OnTakeDamage(int _client, int &attacker, int &inflictor, float &da
         CreateTimer(3.0, Timer_RestoreSpeed, client);
     }
 
-    return Plugin_Handled;
+    return Plugin_Continue;
 }
 
 public void OnWeaponSwitchPost(int _client, int weapon) {
@@ -217,12 +217,14 @@ public Action Event_OnWeaponFire(Handle event, const char[] name, bool dontBroad
     } else {
         CreateTimer(0.1, Timer_SlayClient, client, TIMER_FLAG_NO_MAPCHANGE);
     }
+
     return Plugin_Continue;
 }
 
 public Action Event_OnPlayerDeath_Pre(Handle event, const char[] name, bool dontBroadcast) {
     int client = GetClientOfUserId(GetEventInt(event, "userid"));
-
+    SendConVarValue(client, g_hForceCamera, "0");
+    SetThirdPersonView(client, false);
     return Plugin_Continue;
 }
 
@@ -230,13 +232,11 @@ public Action Event_OnPlayerDeath(Handle event, const char[] name, bool dontBroa
     int _client = GetClientOfUserId(GetEventInt(event, "userid"));
     PHClient client = GetPHClient(_client);
 
-    SetThirdPersonView(client.index, false);
-    SendConVarValue(client.index, g_hForceCamera, "0");
-
-    if (!IsValidEntity(client.index) || client.isAlive)
+    if (!IsValidEntity(client.index))
         return Plugin_Continue;
 
     client.SetFreezed(false);
+    //SetEntityMoveType(client.index, MOVETYPE_OBSERVER);
 
     // remove ragdolls
     int ragdoll = GetEntPropEnt(client.index, Prop_Send, "m_hRagdoll");

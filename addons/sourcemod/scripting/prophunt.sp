@@ -57,7 +57,6 @@ public void OnPluginStart() {
 
     CreateTimer(120.0, SpamCommands, 0);
     g_hForceCamera = FindConVar("mp_forcecamera");
-    g_hSpecNoClip = FindConVar("sv_specnoclip");
 
     AutoExecConfig(true, "prophunt");
 }
@@ -178,7 +177,7 @@ static void AddListeners() {
     HookEvent("player_spawn", Event_OnPlayerSpawn);
     HookEvent("weapon_fire", Event_OnWeaponFire);
     HookEvent("player_death", Event_OnPlayerDeath);
-    HookEvent("player_death", Event_OnPlayerDeath_Pre, EventHookMode_Pre);
+    //HookEvent("player_death", Event_OnPlayerDeath_Pre, EventHookMode_Pre);
     HookEvent("round_start", Event_OnRoundStart);
     HookEvent("round_end", Event_OnRoundEnd);
     HookEvent("player_team", Event_OnPlayerTeam);

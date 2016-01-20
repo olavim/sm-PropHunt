@@ -114,8 +114,8 @@ stock bool PHClient_GetIsConnected(PHClient client) {
  * @param freezed   True to freeze, false to unfreeze.
  * @noreturn
  */
-stock void PHClient_SetFreezed(PHClient client, bool freezed) {
-    if (freezed) { // freeze
+stock void PHClient_SetFreezed(PHClient client, bool freeze) {
+    if (!client.isFreezed && freeze) { // freeze
         if (GetConVarInt(cvar_HiderFreezeMode) == 1) {
             client.SetMoveType(MOVETYPE_NONE); // Still able to move camera
         } else {
@@ -127,7 +127,7 @@ stock void PHClient_SetFreezed(PHClient client, bool freezed) {
         g_ClientIsFreezed[client.index] = true;
 
         client.DetachChild();
-    } else { // unfreeze
+    } else if (client.isFreezed) { // unfreeze
         if (GetConVarInt(cvar_HiderFreezeMode) == 1) {
             client.SetMoveType(MOVETYPE_WALK);
         } else {

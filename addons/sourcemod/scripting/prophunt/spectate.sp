@@ -20,8 +20,7 @@ public Action SpecNext(int client) {
 
     if (nextTarget != -1) {
         SetEntPropEnt(client, Prop_Send, "m_hObserverTarget", nextTarget);
-    } else {
-        return Plugin_Continue;
+        PrintToServer("Next target: %d", nextTarget);
     }
 
     return Plugin_Handled;
@@ -44,7 +43,8 @@ public Action SpecPrev(int client) {
 
     if (nextTarget != -1) {
         SetEntPropEnt(client, Prop_Send, "m_hObserverTarget", nextTarget);
-    } else return Plugin_Continue;
+        PrintToServer("Next target: %d", nextTarget);
+    }
 
     return Plugin_Handled;
 }
@@ -109,8 +109,6 @@ public Action Cmd_spec_mode(int client, const char[] command, int argc) {
     int observerMode = DetermineSpecMode(client);
     PrintToServer("Observer mode: %d", observerMode);
     SetEntProp(client, Prop_Send, "m_iObserverMode", observerMode);
-    if (observerMode == SPECMODE_FREELOOK)
-        SendConVarValue(client, g_hSpecNoClip, "1");
 
     return Plugin_Handled;
 }

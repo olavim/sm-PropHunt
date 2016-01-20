@@ -85,7 +85,6 @@ int forced_values[sizeof(protected_cvars)] = {
 int previous_values[sizeof(protected_cvars)] = {0, ...}; 
 Handle g_hProtectedConvar[sizeof(protected_cvars)] = {INVALID_HANDLE, ...}; 
 Handle g_hForceCamera = INVALID_HANDLE;
-Handle g_hSpecNoClip = INVALID_HANDLE;
 
 /* timers ------------------------------------------------- */
 
