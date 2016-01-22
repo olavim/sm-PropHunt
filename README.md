@@ -60,6 +60,7 @@ ph_auto_freeze_time     	0+		Amount of time after which stationary players shoul
 ph_guaranteed_ct_turns  	1+		Number of turns after which seekers might be switched to the hiders' side
 ph_knifespeed           	0.0+	Running speed when holding a knife (multiplier)
 ph_limitspec                0-2     Who dead players are allowed to spectate - 0: Anyone, 1: Own team only, 2: CT only
+ph_include_default_models   on/off  0: Include default models when one for current map doesn't exist, 1: Always include default models
 ```
 
 ## Protected server cvars
@@ -169,6 +170,7 @@ Elementary, dear Watson.
 **v1.0.3**
 
 - Introduced `includes` to model lists. Further information in the **Configuring model lists** section.
+- New cvar: **ph_include_default_models**
 
 **v1.0.2**
 
