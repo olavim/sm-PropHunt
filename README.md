@@ -128,6 +128,9 @@ To add props yourself you will need to find out the paths. I used the Hammer edi
 
 **IMPORTANT!** Always specify the model paths using backslashes (`\`) ! Forward slashes do not work, and will most likely invalidate the whole file.
 
+
+#### Includes
+
 You can also specify model list includes. Including works by specifying model list files inside an `#include` section, like so:
 
 ```
