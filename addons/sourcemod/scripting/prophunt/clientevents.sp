@@ -93,6 +93,7 @@ public Action OnPlayerRunCmd(int _client, int &buttons, int &impulse, float vel[
     if (!client)
         return Plugin_Continue;
 
+    PrintToServer("client: %d, mode: %d", client.index, GetEntProp(client.index, Prop_Data, "m_iObserverMode"));
     //PrintToServer("client: %d index: %d", view_as<int>(client), client.index);
 
     int iInitialButtons = buttons;

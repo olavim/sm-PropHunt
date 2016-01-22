@@ -45,6 +45,7 @@ Handle cvar_AutoFreezeTime = INVALID_HANDLE;
 Handle cvar_GuaranteedCTTurns = INVALID_HANDLE;
 Handle cvar_KnifeSpeed = INVALID_HANDLE;
 Handle cvar_LimitSpec = INVALID_HANDLE;
+Handle cvar_IncludeDefaultModels = INVALID_HANDLE;
 
 /* server cvars ------------------------------------------------- */
 
@@ -106,7 +107,7 @@ int g_iHiderToSeekerQueue[MAXPLAYERS] = {NOT_IN_QUEUE, ...};
 /* menus ------------------------------------------------- */
 
 Handle g_hModelMenu = INVALID_HANDLE;
-Handle g_hMenuKV;
+KeyValues g_hMenuKV;
 
 /* offsets ------------------------------------------------- */
 

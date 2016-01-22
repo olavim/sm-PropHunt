@@ -128,26 +128,37 @@ stock void BuildMainMenu() {
     g_iTotalModelsAvailable = 0;
 
     g_hMenuKV = CreateKeyValues("Models");
+    KeyValues defaultKV = new KeyValues("Models");
     char mapFile[256], defFile[256], map[64], title[64], finalOutput[100];
-    KeyValues mapKV = new KeyValues("Models");
 
     GetCurrentMap(map, sizeof(map));
 
     BuildPath(Path_SM, mapFile, 255, "%s/%s.cfg", MAP_CONFIG_PATH,  map);
     BuildPath(Path_SM, defFile, 255, "%s/default.cfg", MAP_CONFIG_PATH);
 
-    FileToKeyValues(g_hMenuKV, defFile);
-    FileToKeyValues(mapKV, mapFile);
-    KvMerge(g_hMenuKV, mapKV);
+    bool fileExists = FileToKeyValues(g_hMenuKV, mapFile);
+
+    if (GetConVarBool(cvar_IncludeDefaultModels) || !fileExists) {
+        FileToKeyValues(defaultKV, defFile);
+        KvMerge(g_hMenuKV, defaultKV);
+    }
+
+    KeyValuesToFile(g_hMenuKV, "kvdump_pre.txt");
+    KvAddIncludes(g_hMenuKV);
     KeyValuesToFile(g_hMenuKV, "kvdump.txt");
 
     char name[30];
     char path[100];
     int index = 0;
-    while (KvGetKeyByIndex(g_hMenuKV, index, path, sizeof(path))) {
+
+    KvGotoFirstSubKey(g_hMenuKV, false);
+    do {
+        KvGetSectionName(g_hMenuKV, path, sizeof(path));
+        if (StrEqual("#include", path))
+            continue;
 
         // get the model path and precache it
-        KvGetStringByIndex(g_hMenuKV, index, name, sizeof(name));
+        KvGetString(g_hMenuKV, NULL_STRING, name, sizeof(name));
         FormatEx(finalOutput, sizeof(finalOutput), "models/%s.mdl", path);
         PrecacheModel(finalOutput, true);
 
@@ -171,10 +182,10 @@ stock void BuildMainMenu() {
 
         g_iTotalModelsAvailable++;
         index++;
-    }
+    } while (KvGotoNextKey(g_hMenuKV, false));
     KvRewind(g_hMenuKV);
 
-    delete mapKV;
+    delete defaultKV;
 
     if (g_iTotalModelsAvailable == 0)
         SetFailState("No models parsed in %s.cfg", map);

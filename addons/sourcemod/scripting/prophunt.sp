@@ -151,6 +151,7 @@ static void CreateConVars() {
     cvar_GuaranteedCTTurns = CreateConVar("ph_guaranteed_ct_turns", "3", "Turns after which CTs might be switched to the T side (Default: 3) - 0 to never switch", FCVAR_PLUGIN, true, 0.00);
     cvar_KnifeSpeed = CreateConVar("ph_knifespeed", "1.40", "Running speed when holding a knife (multiplier)", FCVAR_PLUGIN, true, 0.00);
     cvar_LimitSpec = CreateConVar("ph_limitspec", "2", "0: Do not limit spectating, 1: Limit spectating to own team, 2: Limit spectating to CT. (Default: 2)", FCVAR_PLUGIN, true, 0.00, true, 2.00);
+    cvar_IncludeDefaultModels = CreateConVar("ph_include_default_models", "1", "0: Include default model list only when there isn't one for the current map, 1: Always include default model list. (Default: 1)", FCVAR_PLUGIN, true, 0.00, true, 1.00);
 }
 
 static void RegisterCommands() {
