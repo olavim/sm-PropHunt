@@ -59,6 +59,7 @@ ph_hide_player_locations	on/off	Hide location shown next to a player's name on v
 ph_auto_freeze_time     	0+		Amount of time after which stationary players should freeze automatically. 0 disables automatic freezing
 ph_guaranteed_ct_turns  	1+		Number of turns after which seekers might be switched to the hiders' side
 ph_knifespeed           	0.0+	Running speed when holding a knife (multiplier)
+ph_limitspec                0-2     Who dead players are allowed to spectate - 0: Anyone, 1: Own team only, 2: CT only
 ```
 
 ## Protected server cvars
@@ -144,6 +145,11 @@ First of all, just like the installation instructions **above**, you need Metamo
 Elementary, dear Watson.
 
 ## Version history
+
+**v1.0.2**
+
+- Fixed hiders not dying.
+- New cvar: **ph_limitspec** - Restrict spectating to: Anyone (0), own team (1) or CT (2).
 
 **v1.0.1**
 
