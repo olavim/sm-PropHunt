@@ -124,6 +124,8 @@ for example:
 }
 ```
 
+To add props yourself you will need to find out the paths. I used the Hammer editor (CS:GO SDK) to get the few that you can find in `default.cfg` and `de_dust2.cfg`. I'd appreciate if you shared your listings with me so I can update mine.
+
 **IMPORTANT!** Always specify the model paths using backslashes (`\`) ! Forward slashes do not work, and will most likely invalidate the whole file.
 
 You can also specify model list includes. Including works by specifying model list files inside an `#include` section, like so:
@@ -142,8 +144,6 @@ You can also specify model list includes. Including works by specifying model li
 Includes are relative to `addons/sourcemod/configs/prophunt/maps/`, so if you had a file `signs.cfg` in the `maps` folder, you would only write `signs.cfg` in the `#include` section, like in the example above.
 
 The `recurse` key specifies whether or not includes in the included file should be included as well. Valid values are `yes` and `no`.
-
-To add props yourself you will need to find out the paths. I used the Hammer editor (CS:GO SDK) to get the few that you can find in `default.cfg` and `de_dust2.cfg`. I'd appreciate if you shared your listings with me so I can update mine.
 
 ## Configuring whistles
 
