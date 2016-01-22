@@ -166,6 +166,10 @@ Elementary, dear Watson.
 
 ## Version history
 
+**v1.0.3**
+
+- Introduced `includes` to model lists. Further information in the **Configuring model lists** section.
+
 **v1.0.2**
 
 - Fixed hiders not dying.
