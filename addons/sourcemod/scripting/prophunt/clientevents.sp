@@ -444,7 +444,8 @@ static void HandleCTSpawn(PHClient client) {
     }
 
     // Make sure CTs have a knife
-    if (client.team == CS_TEAM_CT)
-        CreateTimer(2.0, Timer_CheckClientHasKnife, client.index, TIMER_FLAG_NO_MAPCHANGE);
+    CreateTimer(2.0, Timer_CheckClientHasKnife, client.index, TIMER_FLAG_NO_MAPCHANGE);
+
+    g_bShowFakeProp[client.index] = true;
 }
 

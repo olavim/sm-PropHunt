@@ -238,6 +238,7 @@ public Action Cmd_JoinTeam(int client, int args) {
             //PrintToServer("Debug: Blocked.");
             return Plugin_Stop;
         }
+
     } else if (team == CS_TEAM_T) {
         int iCTCount = GetTeamClientCount(CS_TEAM_CT);
         int iTCount = GetTeamClientCount(CS_TEAM_T);
