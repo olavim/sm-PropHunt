@@ -49,10 +49,10 @@ public void OnClientDisconnect(int client) {
         g_bIsCTWaiting[client] = false;
         g_iWhistleCount[client] = 0;
 
-        UnsetTimer(g_hAllowModelChangeTimer[client]);
-        UnsetTimer(g_hFreezeCTTimer[client]);
-        UnsetTimer(g_hUnfreezeCTTimer[client]);
-        UnsetTimer(g_hAutoFreezeTimers[client]);
+        UnsetHandle(g_hAllowModelChangeTimer[client]);
+        UnsetHandle(g_hFreezeCTTimer[client]);
+        UnsetHandle(g_hUnfreezeCTTimer[client]);
+        UnsetHandle(g_hAutoFreezeTimers[client]);
     }
 
     g_bAllowModelChange[client] = true;
@@ -93,7 +93,6 @@ public Action OnPlayerRunCmd(int _client, int &buttons, int &impulse, float vel[
     if (!client)
         return Plugin_Continue;
 
-    PrintToServer("client: %d, mode: %d", client.index, GetEntProp(client.index, Prop_Data, "m_iObserverMode"));
     //PrintToServer("client: %d index: %d", view_as<int>(client), client.index);
 
     int iInitialButtons = buttons;
@@ -111,9 +110,9 @@ public Action OnPlayerRunCmd(int _client, int &buttons, int &impulse, float vel[
 
         float AutoFreezeTime = GetConVarFloat(cvar_AutoFreezeTime);
         if (moving && g_hAutoFreezeTimers[client.index] != INVALID_HANDLE) {
-            UnsetTimer(g_hAutoFreezeTimers[client.index]);
+            UnsetHandle(g_hAutoFreezeTimers[client.index]);
         } else if (AutoFreezeTime && !client.isFreezed && g_hAutoFreezeTimers[client.index] == INVALID_HANDLE) {
-            g_hAutoFreezeTimers[client.index] = CreateTimer(AutoFreezeTime, Timer_AutoFreezeClient, client);
+            g_hAutoFreezeTimers[client.index] = CreateTimer(AutoFreezeTime, Timer_AutoFreezeClient, client, TIMER_FLAG_NO_MAPCHANGE);
         }
     }
 
@@ -246,10 +245,10 @@ public Action Event_OnPlayerDeath(Handle event, const char[] name, bool dontBroa
 
     RemoveEdict(ragdoll);
 
-    UnsetTimer(g_hAutoFreezeTimers[client.index]);
+    UnsetHandle(g_hAutoFreezeTimers[client.index]);
 
-    CreateTimer(0.1, Timer_SetObserv, client.index);
-    CreateTimer(0.1, Timer_CheckObservers, client.index);
+    CreateTimer(0.1, Timer_SetObserv, client.index, TIMER_FLAG_NO_MAPCHANGE);
+    CreateTimer(0.1, Timer_CheckObservers, client.index, TIMER_FLAG_NO_MAPCHANGE);
 
     return Plugin_Continue;
 }
@@ -348,7 +347,7 @@ public Action Timer_ShowClientCountdown(Handle timer, int freezeTime) {
         return Plugin_Stop;
     }
 
-    g_hShowCountdownTimer = CreateTimer(0.5, Timer_ShowClientCountdown, freezeTime);
+    g_hShowCountdownTimer = CreateTimer(0.5, Timer_ShowClientCountdown, freezeTime, TIMER_FLAG_NO_MAPCHANGE);
 
     return Plugin_Continue;
 }
@@ -363,14 +362,14 @@ static void HandleTSpawn(PHClient client) {
     g_iModelChangeCount[client.index] = 0;
     g_bInThirdPersonView[client.index] = false;
     g_bAllowModelChange[client.index] = true;
-    UnsetTimer(g_hAllowModelChangeTimer[client.index]);
+    UnsetHandle(g_hAllowModelChangeTimer[client.index]);
 
     // set the speed
     SetEntDataFloat(client.index, g_flLaggedMovementValue, GetConVarFloat(cvar_HiderSpeed), true);
 
     // Assign a model to bots immediately and disable all menus or timers.
     if (IsFakeClient(client.index))
-        g_hAllowModelChangeTimer[client.index] = CreateTimer(0.1, DisableModelMenu, client.index);
+        g_hAllowModelChangeTimer[client.index] = CreateTimer(0.1, DisableModelMenu, client.index, TIMER_FLAG_NO_MAPCHANGE);
     else {
         SetModelChangeTimer(client.index);
 
@@ -397,6 +396,9 @@ static void HandleTSpawn(PHClient client) {
 }
 
 static void HandleCTSpawn(PHClient client) {
+    if (!client.isAlive)
+        return;
+
     SetThirdPersonView(client.index, false);
     if (!IsFakeClient(client.index))
         SendConVarValue(client.index, g_hForceCamera, "1");
@@ -407,11 +409,11 @@ static void HandleCTSpawn(PHClient client) {
     // dont keep late spawning cts blinded longer than the others :)
     if (g_iFirstCTSpawn == 0) {
         if (g_hShowCountdownTimer != INVALID_HANDLE) {
-            UnsetTimer(g_hShowCountdownTimer);
+            UnsetHandle(g_hShowCountdownTimer);
         } else if (GetConVarBool(cvar_FreezeCTs)) {
 
             // show time in center
-            g_hShowCountdownTimer = CreateTimer(0.01, Timer_ShowClientCountdown, RoundToFloor(GetConVarFloat(cvar_FreezeTime)));
+            g_hShowCountdownTimer = CreateTimer(0.01, Timer_ShowClientCountdown, RoundToFloor(GetConVarFloat(cvar_FreezeTime)), TIMER_FLAG_NO_MAPCHANGE);
         }
 
         g_iFirstCTSpawn = currentTime;
@@ -426,7 +428,7 @@ static void HandleCTSpawn(PHClient client) {
         // Start freezing player
         g_hFreezeCTTimer[client.index] = CreateTimer(2.0, Timer_FreezePlayer, client.index, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
 
-        UnsetTimer(g_hUnfreezeCTTimer[client.index]);
+        UnsetHandle(g_hUnfreezeCTTimer[client.index]);
 
         // Start Unfreezing player
         float timerDelay = freezeTime - elapsedFreezeTime;

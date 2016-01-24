@@ -16,13 +16,6 @@ stock void ReadySound(char[] relPath) {
     AddToStringTable(FindStringTable("soundprecache"), buffer);
 }
 
-stock void UnsetTimer(Handle &timer) {
-    if (timer != INVALID_HANDLE) {
-        KillTimer(timer);
-        timer = INVALID_HANDLE;
-    }
-}
-
 stock void UnsetHandle(Handle &handle) {
     if (handle != INVALID_HANDLE) {
         CloseHandle(handle);

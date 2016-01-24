@@ -43,9 +43,9 @@ public Action Event_OnRoundEnd(Handle event, const char[] name, bool dontBroadca
     g_iFirstCTSpawn = 0;
     g_iFirstTSpawn = 0;
 
-    UnsetTimer(g_hShowCountdownTimer);
-    UnsetTimer(g_hRoundTimeTimer);
-    UnsetTimer(g_hWhistleDelay);
+    UnsetHandle(g_hShowCountdownTimer);
+    UnsetHandle(g_hRoundTimeTimer);
+    UnsetHandle(g_hWhistleDelay);
 
     int winnerTeam = GetEventInt(event, "winner");
 

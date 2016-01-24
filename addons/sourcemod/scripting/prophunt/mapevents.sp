@@ -20,7 +20,7 @@ public void OnMapStart() {
     g_iFirstCTSpawn = 0;
     g_iFirstTSpawn = 0;
 
-    UnsetTimer(g_hShowCountdownTimer);
+    UnsetHandle(g_hShowCountdownTimer);
 }
 
 public void OnMapEnd() {
@@ -30,12 +30,12 @@ public void OnMapEnd() {
     g_iFirstCTSpawn = 0;
     g_iFirstTSpawn = 0;
 
-    UnsetTimer(g_hShowCountdownTimer);
-    UnsetTimer(g_hRoundTimeTimer);
-    UnsetTimer(g_hWhistleDelay);
+    UnsetHandle(g_hShowCountdownTimer);
+    UnsetHandle(g_hRoundTimeTimer);
+    UnsetHandle(g_hWhistleDelay);
 
     for (int client = 1; client <= MaxClients; client++) {
-        UnsetTimer(g_hAutoFreezeTimers[client]);
+        UnsetHandle(g_hAutoFreezeTimers[client]);
     }
 }
 
