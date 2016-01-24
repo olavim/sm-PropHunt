@@ -60,6 +60,7 @@ ph_auto_freeze_time     	0+		Amount of time after which stationary players shoul
 ph_guaranteed_ct_turns  	1+		Number of turns after which seekers might be switched to the hiders' side
 ph_knifespeed           	0.0+	Running speed when holding a knife (multiplier)
 ph_limitspec                0-2     Who dead players are allowed to spectate - 0: Anyone, 1: Own team only, 2: CT only
+ph_include_default_models   on/off  0: Include default models when one for current map doesn't exist, 1: Always include default models
 ```
 
 ## Protected server cvars
@@ -124,9 +125,29 @@ for example:
 }
 ```
 
+To add props yourself you will need to find out the paths. I used the Hammer editor (CS:GO SDK) to get the few that you can find in `default.cfg` and `de_dust2.cfg`. I'd appreciate if you shared your listings with me so I can update mine.
+
 **IMPORTANT!** Always specify the model paths using backslashes (`\`) ! Forward slashes do not work, and will most likely invalidate the whole file.
 
-To add props yourself you will need to find out the paths. I used the Hammer editor (CS:GO SDK) to get the few that you can find in `default.cfg` and `de_dust2.cfg`. I'd appreciate if you shared your listings with me so I can update mine.
+
+#### Includes
+
+You can also specify model list includes. Including works by specifying model list files inside an `#include` section, like so:
+
+```
+"Models"
+{
+    "#include" {
+        "signs.cfg" {
+            "recurse" "yes"
+        }
+    }
+}
+```
+
+Includes are relative to `addons/sourcemod/configs/prophunt/maps/`, so if you had a file `signs.cfg` in the `maps` folder, you would only write `signs.cfg` in the `#include` section, like in the example above.
+
+The `recurse` key specifies whether or not includes in the included file should be included as well. Valid values are `yes` and `no`.
 
 ## Configuring whistles
 
@@ -145,6 +166,11 @@ First of all, just like the installation instructions **above**, you need Metamo
 Elementary, dear Watson.
 
 ## Version history
+
+**v1.0.3**
+
+- Introduced `includes` to model lists. Further information in the **Configuring model lists** section.
+- New cvar: **ph_include_default_models**
 
 **v1.0.2**
 
