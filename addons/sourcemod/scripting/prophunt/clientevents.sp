@@ -43,21 +43,20 @@ public void OnWeaponSwitchPost(int _client, int weapon) {
 public void OnClientDisconnect(int client) {
 
     // set the default values for cvar checking
-    if (!IsFakeClient(client)) {
-        g_bInThirdPersonView[client] = false;
-        g_iModelChangeCount[client] = 0;
-        g_bIsCTWaiting[client] = false;
-        g_iWhistleCount[client] = 0;
+    g_bInThirdPersonView[client] = false;
+    g_iModelChangeCount[client] = 0;
+    g_bIsCTWaiting[client] = false;
+    g_iWhistleCount[client] = 0;
+    g_iGuaranteedCTTurns[client] = NOT_IN_QUEUE;
 
-        UnsetHandle(g_hAllowModelChangeTimer[client]);
-        UnsetHandle(g_hFreezeCTTimer[client]);
-        UnsetHandle(g_hUnfreezeCTTimer[client]);
-        UnsetHandle(g_hAutoFreezeTimers[client]);
-    }
+    UnsetHandle(g_hAllowModelChangeTimer[client]);
+    UnsetHandle(g_hFreezeCTTimer[client]);
+    UnsetHandle(g_hAutoFreezeTimers[client]);
 
     g_bAllowModelChange[client] = true;
     g_bFirstSpawn[client] = true;
     g_iLowModelSteps[client] = 0;
+    g_iPlayerScore[client] = 0;
 
     // Teambalance
     g_bCTToSwitch[client] = false;
@@ -65,14 +64,12 @@ public void OnClientDisconnect(int client) {
 
     int iCTCount = GetTeamClientCount(CS_TEAM_CT);
     int iTCount = GetTeamClientCount(CS_TEAM_T);
-    ChangeTeam(client, iCTCount, iTCount);
+    ChangeTeam(iCTCount, iTCount);
 
     // AFK check
     for (int i = 0; i < 3; i++) {
         g_fSpawnPosition[client][i] = 0.0;
     }
-
-    g_iGuaranteedCTTurns[client] = NOT_IN_QUEUE;
 
     SDKUnhook(client, SDKHook_WeaponCanUse, OnWeaponCanUse);
     SDKUnhook(client, SDKHook_WeaponCanSwitchTo, OnWeaponCanUse);
@@ -307,20 +304,6 @@ public Action Timer_FreezePlayer(Handle timer, PHClient client) {
     return Plugin_Continue;
 }
 
-// Unfreeze player function
-public Action Timer_UnFreezePlayer(Handle timer, PHClient client) {
-    if (!client || !client.isConnected)
-        return Plugin_Stop;
-
-    g_hUnfreezeCTTimer[client.index] = INVALID_HANDLE;
-
-    if (!client.isConnected || !client.isAlive)
-        return Plugin_Stop;
-
-    UnFreezePlayer(client);
-    return Plugin_Continue;
-}
-
 // Make sure CTs have knifes
 public Action Timer_CheckClientHasKnife(Handle timer, PHClient client) {
     if (!client || !client.isConnected)
@@ -428,12 +411,8 @@ static void HandleCTSpawn(PHClient client) {
         // Start freezing player
         g_hFreezeCTTimer[client.index] = CreateTimer(2.0, Timer_FreezePlayer, client.index, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
 
-        UnsetHandle(g_hUnfreezeCTTimer[client.index]);
-
         // Start Unfreezing player
         float timerDelay = freezeTime - elapsedFreezeTime;
-        g_hUnfreezeCTTimer[client.index] = CreateTimer(timerDelay, Timer_UnFreezePlayer, client.index, TIMER_FLAG_NO_MAPCHANGE);
-
         PrintToChat(client.index, "%s%t", PREFIX, "Wait for t to hide", RoundToFloor(timerDelay));
     }
 

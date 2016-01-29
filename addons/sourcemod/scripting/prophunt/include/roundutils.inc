@@ -4,6 +4,9 @@
 #endif
 #define _roundutils_included
 
+#define ROUNDEND_CT_WIN  8
+#define ROUNDEND_T_WIN   9
+
 // removes hostages and bomb zones
 stock void RemoveGameplayEdicts() {
     int maxent = GetMaxEntities();
@@ -45,8 +48,8 @@ stock bool GiveAliveTerroristsFrags(int amount) {
             if (amount > 0) {
 
                 // increase kills by amount
-                int iFrags = GetClientFrags(i) + amount;
-                SetEntProp(i, Prop_Data, "m_iFrags", iFrags, 4);
+                g_iPlayerScore[i] += amount;
+                SetEntProp(i, Prop_Data, "m_iFrags", g_iPlayerScore[i]);
                 aliveTerrorists = true;
             }
 

@@ -18,10 +18,8 @@ public Action SpecNext(int client) {
     
     //PrintToServer("Debug: next spectator target requested");
 
-    if (nextTarget != -1) {
+    if (nextTarget != -1)
         SetEntPropEnt(client, Prop_Send, "m_hObserverTarget", nextTarget);
-        PrintToServer("Next target: %d", nextTarget);
-    }
 
     return Plugin_Handled;
 }
@@ -41,10 +39,8 @@ public Action SpecPrev(int client) {
     int target = GetEntPropEnt(client, Prop_Send, "m_hObserverTarget");
     int nextTarget = GetNextClient(target, false, allowedTeams);
 
-    if (nextTarget != -1) {
+    if (nextTarget != -1)
         SetEntPropEnt(client, Prop_Send, "m_hObserverTarget", nextTarget);
-        PrintToServer("Next target: %d", nextTarget);
-    }
 
     return Plugin_Handled;
 }
@@ -57,7 +53,6 @@ public Action Cmd_spec_player(int client, const char[] command, int argc) {
         return Plugin_Continue;
 
     int allowedTeams = DetermineAllowedSpecTeams(client);
-    PrintToServer("Allowed teams: %d", allowedTeams);
 
     if (allowedTeams == -1)
         return Plugin_Continue;
@@ -91,8 +86,7 @@ public Action Cmd_spec_player(int client, const char[] command, int argc) {
         int target = targets[0];
 
         if (GetClientTeam(target) != allowedTeams) {
-            PrintToServer("Not allowed: %d", target);
-            SetEntPropEnt(client, Prop_Send, "m_hObserverTarget", GetRandomClient(allowedTeams).index);
+            SetEntPropEnt(client, Prop_Send, "m_hObserverTarget", GetRandomClient(allowedTeams));
             return Plugin_Handled;
         }
 
@@ -107,7 +101,6 @@ public Action Cmd_spec_mode(int client, const char[] command, int argc) {
         return Plugin_Handled;
 
     int observerMode = DetermineSpecMode(client);
-    PrintToServer("Observer mode: %d", observerMode);
     SetEntProp(client, Prop_Send, "m_iObserverMode", observerMode);
 
     return Plugin_Handled;
@@ -116,9 +109,7 @@ public Action Cmd_spec_mode(int client, const char[] command, int argc) {
 public Action Timer_SetObserv(Handle timer, int client) {
     if (IsClientInGame(client) && !IsPlayerAlive(client)) {
         int allowedTeams = DetermineAllowedSpecTeams(client);
-        PrintToServer("Allowed teams: %d", allowedTeams);
         int target = GetEntPropEnt(client, Prop_Send, "m_hObserverTarget");
-        PrintToServer("Target: %d", target);
 
         if (target == -1 || (allowedTeams != -1 && GetClientTeam(target) != allowedTeams)) {
             if (target == -1)
@@ -158,7 +149,6 @@ public Action Timer_SetMode(Handle timer, int client) {
     if (IsClientConnected(client) && IsClientInGame(client) && !IsPlayerAlive(client)) {
         int observerMode = DetermineSpecMode(client);
         SetEntProp(client, Prop_Send, "m_iObserverMode", observerMode);
-        PrintToServer("Observer mode set to %d", observerMode);
     }
 }
 

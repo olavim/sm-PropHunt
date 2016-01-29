@@ -143,9 +143,9 @@ stock void BuildMainMenu() {
         KvMerge(g_hMenuKV, defaultKV);
     }
 
-    KeyValuesToFile(g_hMenuKV, "kvdump_pre.txt");
+    //KeyValuesToFile(g_hMenuKV, "kvdump_pre.txt");
     KvAddIncludes(g_hMenuKV);
-    KeyValuesToFile(g_hMenuKV, "kvdump.txt");
+    //KeyValuesToFile(g_hMenuKV, "kvdump.txt");
 
     char name[30];
     char path[100];

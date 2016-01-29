@@ -46,6 +46,8 @@ Handle cvar_GuaranteedCTTurns = INVALID_HANDLE;
 Handle cvar_KnifeSpeed = INVALID_HANDLE;
 Handle cvar_LimitSpec = INVALID_HANDLE;
 Handle cvar_IncludeDefaultModels = INVALID_HANDLE;
+Handle cvar_ForcePeriodicWhistle = INVALID_HANDLE;
+Handle cvar_PeriodicWhistleDelay = INVALID_HANDLE;
 
 /* server cvars ------------------------------------------------- */
 
@@ -93,8 +95,8 @@ Handle g_hAutoFreezeTimers[MAXPLAYERS] = {INVALID_HANDLE, ...};
 Handle g_hAllowModelChangeTimer[MAXPLAYERS] = {INVALID_HANDLE, ...};
 Handle g_hShowCountdownTimer = INVALID_HANDLE;
 Handle g_hFreezeCTTimer[MAXPLAYERS] = {INVALID_HANDLE, ...};
-Handle g_hUnfreezeCTTimer[MAXPLAYERS] = {INVALID_HANDLE, ...};
 Handle g_hRoundTimeTimer = INVALID_HANDLE;
+Handle g_hPeriodicWhistleTimer = INVALID_HANDLE;
 
 /* team balance ------------------------------------------------- */
 
@@ -135,6 +137,7 @@ bool g_bShotgun[MAXPLAYERS] = {false, ...};
 bool g_bFirstSpawn[MAXPLAYERS] = {true, ...};
 bool g_bIsCTWaiting[MAXPLAYERS] = {false, ...}; // waiting for round start
 int g_iWhistleCount[MAXPLAYERS] = {0, ...};
+int g_iPlayerScore[MAXPLAYERS] = {0, ...};
 int g_iFirstCTSpawn = 0;
 int g_iFirstTSpawn = 0;
 float g_fSpawnPosition[MAXPLAYERS][3];

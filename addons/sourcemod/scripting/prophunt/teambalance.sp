@@ -16,7 +16,7 @@ public Action Event_OnTeamChange(Handle event, const char[] name, bool dontBroad
     else if (oldteam == CS_TEAM_T)
         iTCount--;
 
-    ChangeTeam(client, iCTCount, iTCount);
+    ChangeTeam(iCTCount, iTCount);
 
     return Plugin_Continue;
 }
@@ -103,7 +103,7 @@ public Action Event_OnPlayerTeam(Handle event, const char[] name, bool dontBroad
 
     // GetTeamClientCount() doesn't handle the teamchange we're called for in player_team,
     // so wait two frames to update the counts
-    ChangeTeam(client.index, iCTCount, iTCount);
+    ChangeTeam(iCTCount, iTCount);
 
     return Plugin_Continue;
 }
@@ -131,7 +131,7 @@ public void SwitchTeams() {
     PrintToServer("Debug: SwitchTeams()");
 }
 
-public void ChangeTeam(int client, int iCTCount, int iTCount) {
+public void ChangeTeam(int iCTCount, int iTCount) {
     // Check, how many cts are going to get switched to terror at the end of the round
     for (int i = 1; i <= MaxClients; i++) {
         if (g_bCTToSwitch[i]) {
@@ -143,9 +143,9 @@ public void ChangeTeam(int client, int iCTCount, int iTCount) {
         }
     }
     //PrintToServer("Debug: %d players are flagged to switch at the end of the round.", iToBeSwitched);
-    float fRatio = FloatDiv(float(iCTCount), float(iTCount));
+    float fRatio = FloatDiv(float(iTCount), float(iCTCount));
 
-    // optimal CT/T ratio
+    // optimal T/CT ratio
     float fCFGCTRatio = GetConVarFloat(cvar_CTRatio);
 
     if (FloatCompare(fRatio, fCFGCTRatio) != 0) { // ratio is not optimal
@@ -155,8 +155,8 @@ public void ChangeTeam(int client, int iCTCount, int iTCount) {
                 numClients++;
         }
        
-        int iOptTCount = RoundToCeil(FloatDiv(view_as<float>(numClients), view_as<float>(fCFGCTRatio + 1)));
-        int iOptCTCount = numClients - iOptTCount;
+        int iOptCTCount = RoundToFloor(FloatDiv(float(numClients), fCFGCTRatio));
+        int iOptTCount = numClients - iOptCTCount;
 
         // in any case we don't want empty teams
         if (iOptCTCount == 0 && iOptTCount > 1) {
@@ -166,7 +166,14 @@ public void ChangeTeam(int client, int iCTCount, int iTCount) {
 
         while (iTCount < iOptTCount) {
             SwitchNextSeeker();
+            iCTCount--;
             iTCount++;
+        }
+
+        while (iCTCount < iOptCTCount) {
+            SwitchNextHiderInQueue();
+            iCTCount++;
+            iTCount--;
         }
     }
 
@@ -220,8 +227,8 @@ public void SwitchNextSeeker() {
 
 public void SwitchNextHiderInQueue() {
     if (g_iHidersInSeekerQueue < 1) {
-        PHClient client = GetRandomClient(CS_TEAM_T);
-        g_bTToSwitch[client.index] = true;
+        int client = GetRandomClient(CS_TEAM_T);
+        g_bTToSwitch[client] = true;
     } else {
         for (int i = 1; i <= MaxClients; i++) {
             if (g_iHiderToSeekerQueue[i] == 1) {

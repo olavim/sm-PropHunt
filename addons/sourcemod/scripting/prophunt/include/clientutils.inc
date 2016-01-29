@@ -22,14 +22,13 @@ stock void OfferClientModel(int client) {
         DisplayMenu(g_hModelMenu, client, MENU_TIME_FOREVER);
 }
 
-stock PHClient GetRandomClient(int team) {
+stock int GetRandomClient(int team) {
     int clientIndex;
-    PHClient clients[MAXPLAYERS];
+    int clients[MAXPLAYERS];
     for (int i = 1; i <= MaxClients; i++) {
-        PHClient client = GetPHClient(i);
-        if (client && client.team == team) {
+        if (IsClientConnected(i) && GetClientTeam(i) == team) {
             if (!(team == CS_TEAM_CT && g_bCTToSwitch[i]) && !(team == CS_TEAM_T && g_bTToSwitch[i]))
-                clients[clientIndex++] = client;
+                clients[clientIndex++] = i;
         }
     }
 
@@ -118,13 +117,13 @@ stock void FreezePlayer(PHClient client) {
     BlindClient(client.index, true);
 }
 
-stock void UnFreezePlayer(PHClient client) {
-    SetEntData(client.index, g_Freeze, FL_FAKECLIENT | FL_ONGROUND | FL_PARTIALGROUND, 4, true);
-    client.SetMoveType(MOVETYPE_WALK);
-    BlindClient(client.index, false);
-    g_bIsCTWaiting[client.index] = false;
-    EmitSoundToClient(client.index, "radio/go.wav");
-    PrintToChat(client.index, "%s%t", PREFIX, "Go search");
+stock void UnFreezePlayer(int client) {
+    SetEntData(client, g_Freeze, FL_FAKECLIENT | FL_ONGROUND | FL_PARTIALGROUND, 4, true);
+    SetEntityMoveType(client, MOVETYPE_WALK);
+    BlindClient(client, false);
+    g_bIsCTWaiting[client] = false;
+    EmitSoundToClient(client, "radio/go.wav");
+    PrintToChat(client, "%s%t", PREFIX, "Go search");
 }
 
 stock void CheckClientHasKnife(PHClient client) {
@@ -205,4 +204,13 @@ stock int DetermineAllowedSpecTeams(int client) {
         team = CS_TEAM_CT;
 
     return team;
+}
+
+stock void MakeClientWhistle(int client) {
+    char buffer[128], sound[MAX_WHISTLE_LENGTH];
+    int soundIndex = GetRandomInt(0, g_WhistleSounds.Length - 1);
+    g_WhistleSounds.GetString(soundIndex, sound, MAX_WHISTLE_LENGTH);
+    Format(buffer, sizeof(buffer), "*/%s", sound);
+
+    EmitSoundToAll(buffer, client, SNDCHAN_AUTO, SNDLEVEL_GUNFIRE);
 }

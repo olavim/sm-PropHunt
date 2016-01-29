@@ -31,30 +31,17 @@ public Action Cmd_PlayWhistle(int _client, int args) {
 
     bool cvarWhistleSeeker = view_as<bool>(GetConVarInt(cvar_WhistleSeeker));
 
-    if (cvarWhistleSeeker && client.team != CS_TEAM_CT) {
-        PrintToChat(client.index, "%s%t", PREFIX, "Only counter-terrorists can use");
-        return Plugin_Handled;
-    }
-    // only Ts are allowed to whistle
-    else if (!cvarWhistleSeeker && client.team != CS_TEAM_T) {
+    if (!cvarWhistleSeeker && client.team != CS_TEAM_T) {
         PrintToChat(client.index, "%s%t", PREFIX, "Only terrorists can use");
         return Plugin_Handled;
     }
 
     int cvarWhistleTimes = GetConVarInt(cvar_WhistleTimes);
-    char buffer[128];
-    char sound[MAX_WHISTLE_LENGTH];
-    int soundIndex = GetRandomInt(0, g_WhistleSounds.Length - 1);
-    g_WhistleSounds.GetString(soundIndex, sound, MAX_WHISTLE_LENGTH);
-    PrintToServer("Whistle: %s", sound);
-    Format(buffer, sizeof(buffer), "*/%s", sound);
 
-    if (g_iWhistleCount[client.index] < cvarWhistleTimes) {
-        if (!cvarWhistleSeeker) {
-            EmitSoundToAll(buffer, client.index, SNDCHAN_AUTO, SNDLEVEL_GUNFIRE);
+    if (client.team == CS_TEAM_T || g_iWhistleCount[client.index] < cvarWhistleTimes) {
+        if (client.team == CS_TEAM_T) {
+            MakeClientWhistle(client.index);
             PrintToChatAll("%s%N %t", PREFIX, client, "whistled");
-            g_iWhistleCount[client.index]++;
-            PrintToChat(client.index, "%s%t", PREFIX, "whistles left", (cvarWhistleTimes - g_iWhistleCount[client.index]));
         } else {
             int target, iCount;
             float maxrange, range, clientOrigin[3];
@@ -75,7 +62,7 @@ public Action Cmd_PlayWhistle(int _client, int args) {
             }
 
             if (iCount > 1) {
-                EmitSoundToAll(buffer, target, SNDCHAN_AUTO, SNDLEVEL_GUNFIRE);
+                MakeClientWhistle(target);
                 PrintToChatAll("%s %N forced %N to whistle.", PREFIX, client, target);
                 g_iWhistleCount[client.index]++;
                 PrintToChat(client.index, "%s%t", PREFIX, "whistles left", (cvarWhistleTimes - g_iWhistleCount[client.index]));
@@ -226,14 +213,14 @@ public Action Cmd_JoinTeam(int client, int args) {
             }
         }
 
-        float fRatio = FloatDiv(float(iCTCount), float(iTCount));
+        float fRatio = FloatDiv(float(iTCount), float(iCTCount));
 
-        float fCFGRatio = FloatDiv(1.0, GetConVarFloat(cvar_CTRatio));
+        float fCFGRatio = GetConVarFloat(cvar_CTRatio);
 
         //PrintToServer("Debug: Player %N wants to join CT. CTCount: %d TCount: %d Ratio: %f", client, iCTCount, iTCount, FloatDiv(float(iCTCount), float(iTCount)));
 
         // There are more CTs than we want in the CT team.
-        if (iCTCount > 1 && fRatio > fCFGRatio) {
+        if (iCTCount > 1 && fRatio < fCFGRatio) {
             PrintCenterText(client, "CT team is full");
             //PrintToServer("Debug: Blocked.");
             return Plugin_Stop;
