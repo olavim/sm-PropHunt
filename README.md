@@ -167,6 +167,10 @@ Elementary, dear Watson.
 
 ## Version history
 
+**v1.0.3.1**
+
+- Fixed players being invisible after switching from the hiding team to the seeking one.
+
 **v1.0.3**
 
 - Introduced `includes` to model lists. Further information in the **Configuring model lists** section.
