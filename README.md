@@ -63,6 +63,7 @@ ph_limitspec                0-2     Who dead players are allowed to spectate - 0
 ph_include_default_models   on/off  0: Include default models when one for current map doesn't exist, 1: Always include default models
 ph_force_periodic_whistle   0+      Periodically, every x seconds, force a random hider to whistle - 0: disable periodic whistles.
 ph_periodic_whistle_delay   0+      Number of seconds for the first periodic whistle, if they are enabled.
+ph_turns_to_scramble        0+      Scramble teams every x turns. 0: disable scrambling. Disables the /ct command if enabled.
 ```
 
 ## Protected server cvars
@@ -168,6 +169,11 @@ First of all, just like the installation instructions **above**, you need Metamo
 Elementary, dear Watson.
 
 ## Version history
+
+**v1.0.5**
+
+- Quick fixes from last release.
+- New cvar: **ph_turns_to_scramble**
 
 **v1.0.4**
 
