@@ -52,7 +52,7 @@ ph_auto_thirdperson     	on/off	Set thirdperson view for hiders automatically on
 ph_hider_freeze_mode    	0-2		Set the /freeze command behaviour - 0: disable the command, 1: freeze on position, 2: freeze completely (no camera movements)
 ph_hide_blood           	on/off	Hide hiders' blood when taking damage
 ph_show_help        	    on/off	Show helpmenu explaining the game on first player spawn
-ph_ct_ratio             	0+		The ratio of hiders to 1 seeker - 0 disables team balance
+ph_ct_ratio             	0+		The ratio of hiders to 1 seeker - 0: disable team balance
 ph_disable_use          	on/off	Disable seekers' use key
 ph_hider_freeze_inair   	on/off	Allow hiders to freeze in the air
 ph_hide_player_locations	on/off	Hide location shown next to a player's name on voice chat and teamsay
@@ -61,6 +61,8 @@ ph_guaranteed_ct_turns  	1+		Number of turns after which seekers might be switch
 ph_knifespeed           	0.0+	Running speed when holding a knife (multiplier)
 ph_limitspec                0-2     Who dead players are allowed to spectate - 0: Anyone, 1: Own team only, 2: CT only
 ph_include_default_models   on/off  0: Include default models when one for current map doesn't exist, 1: Always include default models
+ph_force_periodic_whistle   0+      Periodically, every x seconds, force a random hider to whistle - 0: disable periodic whistles.
+ph_periodic_whistle_delay   0+      Number of seconds for the first periodic whistle, if they are enabled.
 ```
 
 ## Protected server cvars
@@ -166,6 +168,14 @@ First of all, just like the installation instructions **above**, you need Metamo
 Elementary, dear Watson.
 
 ## Version history
+
+**v1.0.4**
+
+- Fixed teambalancing issues.
+- Fixed team scoring when terrorists win by time.
+- Fixed terrorist frags resetting on round start when they win by time.
+- New cvar: **ph_force_periodic_whistle**
+- New cvar: **ph_periodic_whistle_delay**
 
 **v1.0.3.1**
 
