@@ -28,7 +28,7 @@ I'm publishing this under the MIT licence, but I don't really give a shit.
 #include "prophunt/include/utils.inc"
 #pragma newdecls required
 
-#define PLUGIN_VERSION "1.0.4"
+#define PLUGIN_VERSION "1.0.5"
 
 public Plugin myinfo = {
     name = "PropHunt",
@@ -152,8 +152,9 @@ static void CreateConVars() {
     cvar_KnifeSpeed = CreateConVar("ph_knifespeed", "1.40", "Running speed when holding a knife (multiplier)", FCVAR_PLUGIN, true, 0.00);
     cvar_LimitSpec = CreateConVar("ph_limitspec", "2", "0: Do not limit spectating, 1: Limit spectating to own team, 2: Limit spectating to CT. (Default: 2)", FCVAR_PLUGIN, true, 0.00, true, 2.00);
     cvar_IncludeDefaultModels = CreateConVar("ph_include_default_models", "1", "0: Include default model list only when there isn't one for the current map, 1: Always include default model list. (Default: 1)", FCVAR_PLUGIN, true, 0.00, true, 1.00);
-    cvar_ForcePeriodicWhistle = CreateConVar("ph_force_periodic_whistle", "0", "Force a random hider whistle periodically every x seconds. 0 to disable. (Default: 0)", FCVAR_PLUGIN, true, 0.00);
+    cvar_ForcePeriodicWhistle = CreateConVar("ph_force_periodic_whistle", "0", "Periodically, every x seconds, force a random hider to whistle. 0 to disable. (Default: 0)", FCVAR_PLUGIN, true, 0.00);
     cvar_PeriodicWhistleDelay = CreateConVar("ph_periodic_whistle_delay", "60", "Number of seconds for the first periodic whistle, if they are enabled. (Default: 60)", FCVAR_PLUGIN, true, 0.00);
+    cvar_TurnsToScramble = CreateConVar("ph_turns_to_scramble", "0", "Scramble teams every x turns. 0 to disable scrambling. Disables the /ct command if enabled. (Default: 0)", FCVAR_PLUGIN, true, 0.00);
 }
 
 static void RegisterCommands() {
@@ -211,5 +212,5 @@ static void LoadLang() {
 #include "prophunt/menus.sp"
 #include "prophunt/models.sp"
 #include "prophunt/spectate.sp"
-#include "prophunt/teambalance.sp"
+#include "prophunt/teamevents.sp"
 

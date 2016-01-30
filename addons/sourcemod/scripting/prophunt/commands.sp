@@ -160,21 +160,26 @@ public Action Cmd_DisplayModelName(int client, int args) {
 
 // say /ct
 public Action Cmd_RequestCT(int client, int args) {
+    if (GetConVarBool(cvar_TurnsToScramble)) {
+        PrintToChat(client, "%sCommand disabled.", PREFIX);
+        return Plugin_Handled;
+    }
+
     if (GetClientTeam(client) == CS_TEAM_CT) {
-        PrintToChat(client, "%s You are already on the seeking side", PREFIX);
+        PrintToChat(client, "%sYou are already on the seeking side", PREFIX);
         return Plugin_Handled;
     }
 
     if (g_iHiderToSeekerQueue[client] != NOT_IN_QUEUE) {
-        PrintToChat(client, "%s You are already in the queue", PREFIX);
+        PrintToChat(client, "%sYou are already in the queue", PREFIX);
         return Plugin_Stop;
     }
 
     g_iHidersInSeekerQueue++;
     g_iHiderToSeekerQueue[client] = g_iHidersInSeekerQueue;
 
-    PrintToChat(client, "%s You are now in the seeker queue", PREFIX);
-    PrintToChat(client, "%s Turns until team switch: %d", PREFIX, SimulateTurnsToSeeker(g_iHidersInSeekerQueue));
+    PrintToChat(client, "%sYou are now in the seeker queue", PREFIX);
+    PrintToChat(client, "%sTurns until team switch: %d", PREFIX, SimulateTurnsToSeeker(g_iHidersInSeekerQueue));
 
     return Plugin_Handled;
 }
@@ -182,7 +187,6 @@ public Action Cmd_RequestCT(int client, int args) {
 public Action Cmd_JoinTeam(int client, int args) {
     PrintToServer("CT ratio: %f", GetConVarFloat(cvar_CTRatio));
     if (!client || !IsClientInGame(client) || FloatCompare(GetConVarFloat(cvar_CTRatio), 0.0) == 0) {
-        PrintToServer("JoinTeam: team balance disabled");
         return Plugin_Continue;
     }
 

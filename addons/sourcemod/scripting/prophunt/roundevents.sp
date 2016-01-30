@@ -3,15 +3,7 @@
 
 public Action Event_OnRoundStart(Handle event, const char[] name, bool dontBroadcast) {
     g_bRoundEnded = false;
-/*
-    // internal score
-    CS_SetTeamScore(CS_TEAM_CT, g_iScoreCT);
-    CS_SetTeamScore(CS_TEAM_T, g_iScoreT);
 
-    // update visually as well
-    SetTeamScore(CS_TEAM_CT, g_iScoreCT);
-    SetTeamScore(CS_TEAM_T, g_iScoreT);
-*/
     // When disabling +use or "e" button open all doors on the map and keep them opened.
     bool isUseDisabled = GetConVarBool(cvar_DisableUse);
 
@@ -21,7 +13,7 @@ public Action Event_OnRoundStart(Handle event, const char[] name, bool dontBroad
 
     for (int i = 1; i <= MaxClients; i++) {
         if (g_iHiderToSeekerQueue[i] != NOT_IN_QUEUE) {
-            PrintToChat(i, "%s Turns until team switch: %d", PREFIX, SimulateTurnsToSeeker(g_iHiderToSeekerQueue[i]));
+            PrintToChat(i, "%sTurns until team switch: %d", PREFIX, SimulateTurnsToSeeker(g_iHiderToSeekerQueue[i]));
         }
 
         if (IsClientConnected(i)) {
@@ -29,7 +21,13 @@ public Action Event_OnRoundStart(Handle event, const char[] name, bool dontBroad
         }
     }
 
-    CreateTimer(GetConVarFloat(cvar_FreezeTime), Timer_AfterFreezeTime, _, TIMER_FLAG_NO_MAPCHANGE); 
+    g_hAfterFreezeTimer = CreateTimer(GetConVarFloat(cvar_FreezeTime), Timer_AfterFreezeTime, _, TIMER_FLAG_NO_MAPCHANGE); 
+
+    if (GetConVarBool(cvar_TurnsToScramble)) {
+        if (g_iTurnsToScramble == 0)
+            g_iTurnsToScramble = GetConVarInt(cvar_TurnsToScramble);
+        g_iTurnsToScramble--;
+    }
 
     return Plugin_Continue;
 }
@@ -59,20 +57,32 @@ public Action Event_OnRoundEnd(Handle event, const char[] name, bool dontBroadca
     UnsetHandle(g_hShowCountdownTimer);
     UnsetHandle(g_hRoundTimeTimer);
     UnsetHandle(g_hWhistleDelay);
+    UnsetHandle(g_hAfterFreezeTimer);
     UnsetHandle(g_hPeriodicWhistleTimer);
 
     ManageCTQueue();
-
-    //PrintToServer("Debug: RoundEnd");
 
     for (int i = 1; i <= MaxClients; i++) {
         if (IsClientConnected(i))
             g_iPlayerScore[i] = GetEntProp(i, Prop_Data, "m_iFrags");
     }
 
+    //PrintToServer("Debug: %b", GetConVarBool(cvar_TurnsToScramble));
+
+    // scramble teams
+    if (GetConVarInt(cvar_TurnsToScramble) && g_iTurnsToScramble == 0) {
+        ScrambleTeams();
+        PrintToChatAll("%sScrambling teams...", PREFIX);
+    }
+
     // balance teams
     if (GetConVarFloat(cvar_CTRatio) > 0.0) {
         ChangeTeam(GetTeamClientCount(CS_TEAM_CT), GetTeamClientCount(CS_TEAM_T));
+
+        // if teams were'nt just scrambled, announce balancing
+        if (!(GetConVarBool(cvar_TurnsToScramble) && g_iTurnsToScramble == 0)) {
+            PrintToChatAll("%sBalancing teams...", PREFIX);
+        }
     }
 
     // Switch the flagged players' teams
@@ -83,6 +93,8 @@ public Action Event_OnRoundEnd(Handle event, const char[] name, bool dontBroadca
 
 // give terrorists frags
 public Action Event_OnRoundEnd_Pre(Handle event, const char[] name, bool dontBroadcast) {
+    PrintToServer("Debug: RoundEnd_Pre");
+
     int winnerTeam = GetEventInt(event, "winner");
     bool aliveTs, aliveCTs;
 
@@ -121,8 +133,10 @@ public Action Event_OnRoundEnd_Pre(Handle event, const char[] name, bool dontBro
 }
 
 public Action Timer_AfterFreezeTime(Handle timer) { 
-    int whistleDelay = GetConVarInt(cvar_PeriodicWhistleDelay);
+    g_hAfterFreezeTimer = INVALID_HANDLE;
+
     if (GetConVarBool(cvar_ForcePeriodicWhistle)) {
+        int whistleDelay = GetConVarInt(cvar_PeriodicWhistleDelay);
         g_hPeriodicWhistleTimer = CreateTimer(FloatDiv(float(whistleDelay), 2.0), Timer_MakeRandomClientWhistle, true, TIMER_FLAG_NO_MAPCHANGE);
     }
 
@@ -130,6 +144,8 @@ public Action Timer_AfterFreezeTime(Handle timer) {
         if (IsClientInGame(i))
             UnFreezePlayer(i);
     }
+
+    return Plugin_Continue;
 }
 
 public Action Timer_MakeRandomClientWhistle(Handle timer, bool firstcall) { 
@@ -138,7 +154,7 @@ public Action Timer_MakeRandomClientWhistle(Handle timer, bool firstcall) {
     if (firstcall) {
         PrintToChatAll("%s%d seconds until someone whistles!", PREFIX, RoundToFloor(repeatDelay));
     } else {
-        int client = GetRandomClient(CS_TEAM_T);
+        int client = GetRandomClient(CS_TEAM_T, true);
         MakeClientWhistle(client);
 
         char name[128];
