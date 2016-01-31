@@ -86,7 +86,7 @@ public Action Cmd_spec_player(int client, const char[] command, int argc) {
         int target = targets[0];
 
         if (GetClientTeam(target) != allowedTeams) {
-            SetEntPropEnt(client, Prop_Send, "m_hObserverTarget", GetRandomClient(allowedTeams));
+            SetEntPropEnt(client, Prop_Send, "m_hObserverTarget", GetRandomClient(allowedTeams, true));
             return Plugin_Handled;
         }
 

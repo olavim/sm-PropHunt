@@ -59,8 +59,7 @@ public void OnClientDisconnect(int client) {
     g_iPlayerScore[client] = 0;
 
     // Teambalance
-    g_bCTToSwitch[client] = false;
-    g_bTToSwitch[client] = false;
+    g_iClientTeam[client] = CS_TEAM_SPECTATOR;
 
     int iCTCount = GetTeamClientCount(CS_TEAM_CT);
     int iTCount = GetTeamClientCount(CS_TEAM_T);
@@ -242,6 +241,12 @@ public Action Event_OnPlayerDeath(Handle event, const char[] name, bool dontBroa
 
     RemoveEdict(ragdoll);
 
+    if (g_bIsCTWaiting[client.index]) {
+        g_bIsCTWaiting[client.index] = false;
+        UnFreezePlayer(client.index);
+    }
+
+    UnsetHandle(g_hFreezeCTTimer[client.index]);
     UnsetHandle(g_hAutoFreezeTimers[client.index]);
 
     CreateTimer(0.1, Timer_SetObserv, client.index, TIMER_FLAG_NO_MAPCHANGE);
@@ -346,6 +351,12 @@ static void HandleTSpawn(PHClient client) {
     g_bInThirdPersonView[client.index] = false;
     g_bAllowModelChange[client.index] = true;
     UnsetHandle(g_hAllowModelChangeTimer[client.index]);
+    UnsetHandle(g_hFreezeCTTimer[client.index]);
+
+    if (g_bIsCTWaiting[client.index]) {
+        g_bIsCTWaiting[client.index] = false;
+        UnFreezePlayer(client.index);
+    }
 
     // set the speed
     SetEntDataFloat(client.index, g_flLaggedMovementValue, GetConVarFloat(cvar_HiderSpeed), true);

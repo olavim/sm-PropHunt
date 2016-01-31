@@ -22,13 +22,16 @@ stock void OfferClientModel(int client) {
         DisplayMenu(g_hModelMenu, client, MENU_TIME_FOREVER);
 }
 
-stock int GetRandomClient(int team, bool onlyAlive=false) {
+stock int GetRandomClient(int team, bool onlyAlive=false, bool onlyNonSwitching=false) {
     int clientIndex;
-    int[] clients = new int[MaxClients+1];
+    int[] clients = new int[MaxClients];
     for (int i = 1; i <= MaxClients; i++) {
         if (IsClientInGame(i) && GetClientTeam(i) == team && (IsPlayerAlive(i) || !onlyAlive)) {
-            if (!(team == CS_TEAM_CT && g_bCTToSwitch[i]) && !(team == CS_TEAM_T && g_bTToSwitch[i]))
-                clients[clientIndex++] = i;
+            bool isBeingSwitched = g_iClientTeam[i] != team;
+            if (!onlyNonSwitching || !isBeingSwitched) {
+                clients[clientIndex] = i;
+                clientIndex++;
+            }
         }
     }
 

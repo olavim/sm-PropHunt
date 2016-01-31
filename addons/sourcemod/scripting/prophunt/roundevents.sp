@@ -16,7 +16,7 @@ public Action Event_OnRoundStart(Handle event, const char[] name, bool dontBroad
             PrintToChat(i, "%sTurns until team switch: %d", PREFIX, SimulateTurnsToSeeker(g_iHiderToSeekerQueue[i]));
         }
 
-        if (IsClientConnected(i)) {
+        if (IsClientInGame(i)) {
             SetEntProp(i, Prop_Data, "m_iFrags", g_iPlayerScore[i]);
         }
     }
@@ -36,7 +36,7 @@ public Action Event_OnRoundStart(Handle event, const char[] name, bool dontBroad
 public Action CS_OnTerminateRound(float &delay, CSRoundEndReason &reason) {
     if (reason != CSRoundEnd_TerroristWin) {
         for (int i = 1; i <= MaxClients; i++) {
-            if (IsClientConnected(i) && IsPlayerAlive(i) && GetClientTeam(i) == CS_TEAM_T) {
+            if (IsClientInGame(i) && IsPlayerAlive(i) && GetClientTeam(i) == CS_TEAM_T) {
                 reason = CSRoundEnd_TerroristWin; 
                 return Plugin_Changed;
             }
@@ -60,7 +60,8 @@ public Action Event_OnRoundEnd(Handle event, const char[] name, bool dontBroadca
     UnsetHandle(g_hAfterFreezeTimer);
     UnsetHandle(g_hPeriodicWhistleTimer);
 
-    ManageCTQueue();
+    if (!GetConVarInt(cvar_TurnsToScramble))
+        ManageCTQueue();
 
     for (int i = 1; i <= MaxClients; i++) {
         if (IsClientConnected(i))
@@ -86,6 +87,7 @@ public Action Event_OnRoundEnd(Handle event, const char[] name, bool dontBroadca
     }
 
     // Switch the flagged players' teams
+    //CreateTimer(0.1, Timer_SwitchTeams, _, TIMER_FLAG_NO_MAPCHANGE);
     SwitchTeams();
 
     return Plugin_Continue;
@@ -132,16 +134,23 @@ public Action Event_OnRoundEnd_Pre(Handle event, const char[] name, bool dontBro
     return Plugin_Continue;
 }
 
+public Action Timer_SwitchTeams(Handle timer) {
+    SwitchTeams();
+    return Plugin_Continue;
+}
+
 public Action Timer_AfterFreezeTime(Handle timer) { 
+    PrintToServer("AfterFreezeTime");
     g_hAfterFreezeTimer = INVALID_HANDLE;
 
     if (GetConVarBool(cvar_ForcePeriodicWhistle)) {
         int whistleDelay = GetConVarInt(cvar_PeriodicWhistleDelay);
+        UnsetHandle(g_hPeriodicWhistleTimer);
         g_hPeriodicWhistleTimer = CreateTimer(FloatDiv(float(whistleDelay), 2.0), Timer_MakeRandomClientWhistle, true, TIMER_FLAG_NO_MAPCHANGE);
     }
 
     for (int i = 1; i <= MaxClients; i++) {
-        if (IsClientInGame(i))
+        if (IsClientInGame(i) && GetClientTeam(i) == CS_TEAM_CT && IsPlayerAlive(i))
             UnFreezePlayer(i);
     }
 
@@ -162,6 +171,7 @@ public Action Timer_MakeRandomClientWhistle(Handle timer, bool firstcall) {
         PrintToChatAll("%sIt was %s's time to whistle!", PREFIX, name);
     }
 
+    g_hPeriodicWhistleTimer = INVALID_HANDLE;
     g_hPeriodicWhistleTimer = CreateTimer(repeatDelay, Timer_MakeRandomClientWhistle, !firstcall, TIMER_FLAG_NO_MAPCHANGE);
     return Plugin_Continue;
 }

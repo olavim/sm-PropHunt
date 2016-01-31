@@ -102,11 +102,11 @@ Handle g_hAfterFreezeTimer = INVALID_HANDLE;
 
 /* team balance ------------------------------------------------- */
 
-bool g_bCTToSwitch[MAXPLAYERS] = {false, ...};
-bool g_bTToSwitch[MAXPLAYERS] = {false, ...};
+int g_iClientTeam[MAXPLAYERS] = {CS_TEAM_SPECTATOR, ...};
 int g_iHidersInSeekerQueue = 0;
 int g_iGuaranteedCTTurns[MAXPLAYERS] = {-1, ...};
 int g_iHiderToSeekerQueue[MAXPLAYERS] = {NOT_IN_QUEUE, ...};
+bool g_bClientTeambalanced[MAXPLAYERS];
 
 /* menus ------------------------------------------------- */
 

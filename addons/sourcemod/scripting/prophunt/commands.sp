@@ -199,32 +199,33 @@ public Action Cmd_JoinTeam(int client, int args) {
 
     // Player wants to join CT
     if (team == CS_TEAM_CT) {
-        int iCTCount = GetTeamClientCount(CS_TEAM_CT);
-        int iTCount = GetTeamClientCount(CS_TEAM_T);
+        int teamClientCount[5];
+        teamClientCount[CS_TEAM_CT] = GetTeamClientCount(CS_TEAM_CT);
+        teamClientCount[CS_TEAM_T] = GetTeamClientCount(CS_TEAM_T);
 
         // This client would be in CT if we continue.
-        iCTCount++;
+        teamClientCount[CS_TEAM_CT]++;
 
         // And would leave T
         if (GetClientTeam(client) == CS_TEAM_T)
-            iTCount--;
+            teamClientCount[CS_TEAM_T]--;
 
         // Check, how many terrors are going to get switched to ct at the end of the round
         for (int i = 1; i <= MaxClients; i++) {
-            if (g_bCTToSwitch[i]) {
-                iCTCount--;
-                iTCount++;
+            if (IsClientConnected(i)) {
+                teamClientCount[g_iClientTeam[i]]++;
+                teamClientCount[GetClientTeam(i)]--;
             }
         }
 
-        float fRatio = FloatDiv(float(iTCount), float(iCTCount));
+        float fRatio = FloatDiv(float(teamClientCount[CS_TEAM_T]), float(teamClientCount[CS_TEAM_CT]));
 
         float fCFGRatio = GetConVarFloat(cvar_CTRatio);
 
         //PrintToServer("Debug: Player %N wants to join CT. CTCount: %d TCount: %d Ratio: %f", client, iCTCount, iTCount, FloatDiv(float(iCTCount), float(iTCount)));
 
         // There are more CTs than we want in the CT team.
-        if (iCTCount > 1 && fRatio < fCFGRatio) {
+        if (teamClientCount[CS_TEAM_CT] > 0 && fRatio < fCFGRatio) {
             PrintCenterText(client, "CT team is full");
             //PrintToServer("Debug: Blocked.");
             return Plugin_Stop;

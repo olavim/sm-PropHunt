@@ -76,7 +76,7 @@ stock void ManageCTQueue() {
         }
 
         if (g_iGuaranteedCTTurns[i] == 0 && g_iHidersInSeekerQueue) {
-            g_bCTToSwitch[i] = true;
+            g_iClientTeam[i] = CS_TEAM_T;
             SwitchNextHiderInQueue();      
         }
     }

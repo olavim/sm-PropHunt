@@ -123,7 +123,7 @@ public void OnChangeHiderSpeed(Handle convar, const char[] oldValue, const char[
 
 static void CreateConVars() {
     cvar_FreezeCTs = CreateConVar("ph_freezects", "1", "Should CTs get freezed and blinded on spawn?", FCVAR_PLUGIN, true, 0.0, true, 1.0);
-    cvar_FreezeTime = CreateConVar("ph_freezetime", "45.0", "How long should the CTs are freezed after spawn?", FCVAR_PLUGIN, true, 1.00, true, 120.00);
+    cvar_FreezeTime = CreateConVar("ph_freezetime", "45.0", "How long should the CTs be freezed after spawn?", FCVAR_PLUGIN, true, 1.00, true, 120.00);
     cvar_ChangeLimit = CreateConVar("ph_changelimit", "2", "How often a T is allowed to choose his model ingame? 0 = unlimited", FCVAR_PLUGIN, true, 0.00);
     cvar_ChangeLimittime = CreateConVar("ph_changelimittime", "30.0", "How long should a T be allowed to change his model again after spawn?", FCVAR_PLUGIN, true, 0.00);
     cvar_AutoChoose = CreateConVar("ph_autochoose", "0", "Should the plugin choose models for the hiders automatically?", FCVAR_PLUGIN, true, 0.0, true, 1.0);
@@ -186,7 +186,7 @@ static void AddListeners() {
     HookEvent("round_end", Event_OnRoundEnd);
     HookEvent("round_end", Event_OnRoundEnd_Pre, EventHookMode_Pre);
     HookEvent("player_team", Event_OnPlayerTeam);
-    HookEvent("teamchange_pending", Event_OnTeamChange);
+    //HookEvent("teamchange_pending", Event_OnTeamChange);
     HookEvent("item_equip", Event_ItemEquip);
 
     AddCommandListener(Cmd_spec_next, "spec_next");

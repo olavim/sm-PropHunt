@@ -1,6 +1,7 @@
 
 #include "prophunt/include/teamutils.inc"
 
+// player team change pending
 public Action Event_OnTeamChange(Handle event, const char[] name, bool dontBroadcast) {
     int client = GetClientOfUserId(GetEventInt(event, "userid"));
     int team = GetEventInt(event, "toteam");
@@ -23,14 +24,20 @@ public Action Event_OnTeamChange(Handle event, const char[] name, bool dontBroad
     return Plugin_Continue;
 }
 
+// player joined team
 public Action Event_OnPlayerTeam(Handle event, const char[] name, bool dontBroadcast) {
     int _client = GetClientOfUserId(GetEventInt(event, "userid"));
     PHClient client = GetPHClient(_client);
+    if (!client)
+        return Plugin_Continue;
 
     int team = GetEventInt(event, "team");
-    int oldteam = GetEventInt(event, "oldteam");
     bool disconnect = GetEventBool(event, "disconnect");
     SetEventBool(event, "silent", true);
+    g_iClientTeam[client.index] = team;
+
+    BlindClient(client.index, false);
+    client.SetFreezed(false);
 
     // Handle the thirdperson view values
     // terrors are always allowed to view players in thirdperson
@@ -39,12 +46,6 @@ public Action Event_OnPlayerTeam(Handle event, const char[] name, bool dontBroad
             SendConVarValue(client.index, g_hForceCamera, "0");
         else
             SendConVarValue(client.index, g_hForceCamera, "1");
-    }
-
-    // Player disconnected?
-    if (disconnect) {
-        g_bCTToSwitch[client.index] = false;
-        g_bTToSwitch[client.index] = false;
     }
 
     if (team < CS_TEAM_T) {
@@ -63,15 +64,10 @@ public Action Event_OnPlayerTeam(Handle event, const char[] name, bool dontBroad
 
     // Player joined spectator?
     if (!disconnect && team < CS_TEAM_T) {
-        g_bCTToSwitch[client.index] = false;
-        g_bTToSwitch[client.index] = false;
         g_iGuaranteedCTTurns[client.index] = -1;
 
-        // Unblind and show weapons again
+        // show weapons again
         SetEntProp(client.index, Prop_Send, "m_bDrawViewmodel", 1);
-        BlindClient(client.index, false);
-
-        client.SetFreezed(false);
     }
 
     // Strip the player if joined T midround
@@ -83,29 +79,11 @@ public Action Event_OnPlayerTeam(Handle event, const char[] name, bool dontBroad
     if (GetConVarFloat(cvar_CTRatio) == 0.0)
         return Plugin_Continue;
 
-    int iCTCount = GetTeamClientCount(CS_TEAM_CT);
-    int iTCount = GetTeamClientCount(CS_TEAM_T);
-
     if (team == CS_TEAM_CT) {
         g_iGuaranteedCTTurns[client.index] = GetConVarInt(cvar_GuaranteedCTTurns);
     } else {
         g_iGuaranteedCTTurns[client.index] = -1;
     }
-
-    if (team == CS_TEAM_CT)
-        iCTCount++;
-    else if (team == CS_TEAM_T)
-        iTCount++;
-    if (oldteam == CS_TEAM_CT)
-        iCTCount--;
-    else if (oldteam == CS_TEAM_T)
-        iTCount--;
-
-    PrintToServer("Debug: PlayerTeam");
-
-    // GetTeamClientCount() doesn't handle the teamchange we're called for in player_team,
-    // so wait two frames to update the counts
-    ChangeTeam(iCTCount, iTCount);
 
     return Plugin_Continue;
 }
