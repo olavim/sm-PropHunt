@@ -6,7 +6,7 @@ public Action Cmd_spec_next(int client, const char[] command, int argc) {
 }
 
 public Action SpecNext(int client) {
-    if (client == 0 || IsPlayerAlive(client))
+    if (client == 0 || !IsClientInGame(client) || IsPlayerAlive(client))
         return Plugin_Handled;
 
     int allowedTeams = DetermineAllowedSpecTeams(client);
@@ -29,7 +29,7 @@ public Action Cmd_spec_prev(int client, const char[] command, int argc) {
 }
 
 public Action SpecPrev(int client) {
-    if (client == 0 || IsPlayerAlive(client))
+    if (client == 0 || !IsClientInGame(client) || IsPlayerAlive(client))
         return Plugin_Handled;
 
     int allowedTeams = DetermineAllowedSpecTeams(client);
@@ -46,7 +46,7 @@ public Action SpecPrev(int client) {
 }
 
 public Action Cmd_spec_player(int client, const char[] command, int argc) {
-    if (client == 0 || IsPlayerAlive(client))
+    if (client == 0 || !IsClientInGame(client) || IsPlayerAlive(client))
         return Plugin_Handled;
 
     if (GetClientTeam(client) == CS_TEAM_SPECTATOR)
@@ -97,7 +97,7 @@ public Action Cmd_spec_player(int client, const char[] command, int argc) {
 }
 
 public Action Cmd_spec_mode(int client, const char[] command, int argc) {
-    if (client == 0 || IsPlayerAlive(client))
+    if (client == 0 || !IsClientInGame(client) || IsPlayerAlive(client))
         return Plugin_Handled;
 
     int observerMode = DetermineSpecMode(client);

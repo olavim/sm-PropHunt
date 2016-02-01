@@ -120,9 +120,11 @@ public Action Event_OnRoundEnd_Pre(Handle event, const char[] name, bool dontBro
         }
     }
 
+    // victory by time
     if (aliveCTs && aliveTs) {
         // internal score
-        CS_SetTeamScore(CS_TEAM_CT, CS_GetTeamScore(CS_TEAM_CT) - 1);
+        if (winnerTeam != CS_TEAM_T)
+            CS_SetTeamScore(CS_TEAM_CT, CS_GetTeamScore(CS_TEAM_CT) - 1);
         CS_SetTeamScore(CS_TEAM_T, CS_GetTeamScore(CS_TEAM_T) + 1);
 
         // update visually as well
@@ -168,7 +170,6 @@ public Action Timer_MakeRandomClientWhistle(Handle timer, bool firstcall) {
         PrintToChatAll("%s%T", PREFIX, "whistled", name);
     }
 
-    g_hPeriodicWhistleTimer = INVALID_HANDLE;
     g_hPeriodicWhistleTimer = CreateTimer(repeatDelay, Timer_MakeRandomClientWhistle, !firstcall, TIMER_FLAG_NO_MAPCHANGE);
     return Plugin_Continue;
 }
