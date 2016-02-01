@@ -241,10 +241,7 @@ public Action Event_OnPlayerDeath(Handle event, const char[] name, bool dontBroa
 
     RemoveEdict(ragdoll);
 
-    if (g_bIsCTWaiting[client.index]) {
-        g_bIsCTWaiting[client.index] = false;
-        UnFreezePlayer(client.index);
-    }
+    UnFreezePlayer(client.index);
 
     UnsetHandle(g_hFreezeCTTimer[client.index]);
     UnsetHandle(g_hAutoFreezeTimers[client.index]);

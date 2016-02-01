@@ -66,7 +66,8 @@ char protected_cvars[][] = {
     "sv_turbophysics",
     "mp_teams_unbalance_limit",
     "mp_show_voice_icons",
-    "spec_freeze_time"
+    "spec_freeze_time",
+    "mp_default_team_winner_no_objective"
 };
 
 int forced_values[sizeof(protected_cvars)] = {
@@ -83,7 +84,8 @@ int forced_values[sizeof(protected_cvars)] = {
     1, // sv_turbophysics
     0, // mp_teams_unbalance_limit
     0, // mp_show_voice_icons
-    -1 // spec_freeze_time
+    -1,// spec_freeze_time
+    0, // mp_default_team_winner_no_objective
 };
 
 int previous_values[sizeof(protected_cvars)] = {0, ...}; 

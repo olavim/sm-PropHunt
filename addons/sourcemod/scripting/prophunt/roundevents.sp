@@ -13,7 +13,7 @@ public Action Event_OnRoundStart(Handle event, const char[] name, bool dontBroad
 
     for (int i = 1; i <= MaxClients; i++) {
         if (g_iHiderToSeekerQueue[i] != NOT_IN_QUEUE) {
-            PrintToChat(i, "%sTurns until team switch: %d", PREFIX, SimulateTurnsToSeeker(g_iHiderToSeekerQueue[i]));
+            PrintToChat(i, "%s%T", PREFIX, "turns until switch", SimulateTurnsToSeeker(g_iHiderToSeekerQueue[i]));
         }
 
         if (IsClientInGame(i)) {
@@ -21,6 +21,7 @@ public Action Event_OnRoundStart(Handle event, const char[] name, bool dontBroad
         }
     }
 
+    g_hPeriodicWhistleTimer = INVALID_HANDLE;
     g_hAfterFreezeTimer = CreateTimer(GetConVarFloat(cvar_FreezeTime), Timer_AfterFreezeTime, _, TIMER_FLAG_NO_MAPCHANGE); 
 
     if (GetConVarBool(cvar_TurnsToScramble)) {
@@ -73,7 +74,7 @@ public Action Event_OnRoundEnd(Handle event, const char[] name, bool dontBroadca
     // scramble teams
     if (GetConVarInt(cvar_TurnsToScramble) && g_iTurnsToScramble == 0) {
         ScrambleTeams();
-        PrintToChatAll("%sScrambling teams...", PREFIX);
+        PrintToChatAll("%s%t", PREFIX, "scrambling");
     }
 
     // balance teams
@@ -82,7 +83,7 @@ public Action Event_OnRoundEnd(Handle event, const char[] name, bool dontBroadca
 
         // if teams were'nt just scrambled, announce balancing
         if (!(GetConVarBool(cvar_TurnsToScramble) && g_iTurnsToScramble == 0)) {
-            PrintToChatAll("%sBalancing teams...", PREFIX);
+            PrintToChatAll("%s%t", PREFIX, "balancing");
         }
     }
 
@@ -95,8 +96,6 @@ public Action Event_OnRoundEnd(Handle event, const char[] name, bool dontBroadca
 
 // give terrorists frags
 public Action Event_OnRoundEnd_Pre(Handle event, const char[] name, bool dontBroadcast) {
-    PrintToServer("Debug: RoundEnd_Pre");
-
     int winnerTeam = GetEventInt(event, "winner");
     bool aliveTs, aliveCTs;
 
@@ -140,17 +139,15 @@ public Action Timer_SwitchTeams(Handle timer) {
 }
 
 public Action Timer_AfterFreezeTime(Handle timer) { 
-    PrintToServer("AfterFreezeTime");
     g_hAfterFreezeTimer = INVALID_HANDLE;
 
     if (GetConVarBool(cvar_ForcePeriodicWhistle)) {
         int whistleDelay = GetConVarInt(cvar_PeriodicWhistleDelay);
-        UnsetHandle(g_hPeriodicWhistleTimer);
         g_hPeriodicWhistleTimer = CreateTimer(FloatDiv(float(whistleDelay), 2.0), Timer_MakeRandomClientWhistle, true, TIMER_FLAG_NO_MAPCHANGE);
     }
 
     for (int i = 1; i <= MaxClients; i++) {
-        if (IsClientInGame(i) && GetClientTeam(i) == CS_TEAM_CT && IsPlayerAlive(i))
+        if (IsClientInGame(i))
             UnFreezePlayer(i);
     }
 
@@ -161,14 +158,14 @@ public Action Timer_MakeRandomClientWhistle(Handle timer, bool firstcall) {
     float repeatDelay = FloatDiv(GetConVarFloat(cvar_ForcePeriodicWhistle), 2.0);
 
     if (firstcall) {
-        PrintToChatAll("%s%d seconds until someone whistles!", PREFIX, RoundToFloor(repeatDelay));
+        PrintToChatAll("%s%T", PREFIX, "will whistle", RoundToFloor(repeatDelay));
     } else {
         int client = GetRandomClient(CS_TEAM_T, true);
         MakeClientWhistle(client);
 
         char name[128];
         GetClientName(client, name, sizeof(name));
-        PrintToChatAll("%sIt was %s's time to whistle!", PREFIX, name);
+        PrintToChatAll("%s%T", PREFIX, "whistled", name);
     }
 
     g_hPeriodicWhistleTimer = INVALID_HANDLE;
