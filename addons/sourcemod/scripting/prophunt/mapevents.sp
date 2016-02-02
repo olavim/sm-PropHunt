@@ -33,6 +33,8 @@ public void OnMapEnd() {
     UnsetHandle(g_hShowCountdownTimer);
     UnsetHandle(g_hRoundTimeTimer);
     UnsetHandle(g_hWhistleDelay);
+    UnsetHandle(g_hAfterFreezeTimer);
+    UnsetHandle(g_hPeriodicWhistleTimer);
 
     for (int client = 1; client <= MaxClients; client++) {
         UnsetHandle(g_hAutoFreezeTimers[client]);

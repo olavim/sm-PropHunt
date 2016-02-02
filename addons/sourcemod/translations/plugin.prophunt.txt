@@ -246,4 +246,32 @@
 	{
 		"en"			"Random model"
 	}
+
+	"balancing"
+	{
+		"en"			"Balancing teams..."
+	}
+
+	"scrambling"
+	{
+		"en"			"Scrambling teams..."
+	}
+
+	"periodic whistle"
+	{
+		"#format"		"{1:s}"
+		"en"			"It was {1}'s time to whistle."
+	}
+
+	"will whistle"
+	{
+		"#format"		"{1:d}"
+		"en"			"{1} seconds until someone whistles!"
+	}
+
+	"turns until switch"
+	{
+		"#format"		"{1:d}"
+		"en"			"Turns until team switch: {1}"
+	}
 }

@@ -185,7 +185,6 @@ public Action Cmd_RequestCT(int client, int args) {
 }
 
 public Action Cmd_JoinTeam(int client, int args) {
-    PrintToServer("CT ratio: %f", GetConVarFloat(cvar_CTRatio));
     if (!client || !IsClientInGame(client) || FloatCompare(GetConVarFloat(cvar_CTRatio), 0.0) == 0) {
         return Plugin_Continue;
     }
@@ -212,7 +211,7 @@ public Action Cmd_JoinTeam(int client, int args) {
 
         // Check, how many terrors are going to get switched to ct at the end of the round
         for (int i = 1; i <= MaxClients; i++) {
-            if (IsClientConnected(i)) {
+            if (IsClientInGame(i)) {
                 teamClientCount[g_iClientTeam[i]]++;
                 teamClientCount[GetClientTeam(i)]--;
             }
@@ -225,7 +224,7 @@ public Action Cmd_JoinTeam(int client, int args) {
         //PrintToServer("Debug: Player %N wants to join CT. CTCount: %d TCount: %d Ratio: %f", client, iCTCount, iTCount, FloatDiv(float(iCTCount), float(iTCount)));
 
         // There are more CTs than we want in the CT team.
-        if (teamClientCount[CS_TEAM_CT] > 0 && fRatio < fCFGRatio) {
+        if (teamClientCount[CS_TEAM_CT] > 1 && fRatio < fCFGRatio) {
             PrintCenterText(client, "CT team is full");
             //PrintToServer("Debug: Blocked.");
             return Plugin_Stop;

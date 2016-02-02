@@ -13,7 +13,7 @@ public Action Event_OnRoundStart(Handle event, const char[] name, bool dontBroad
 
     for (int i = 1; i <= MaxClients; i++) {
         if (g_iHiderToSeekerQueue[i] != NOT_IN_QUEUE) {
-            PrintToChat(i, "%s%T", PREFIX, "turns until switch", SimulateTurnsToSeeker(g_iHiderToSeekerQueue[i]));
+            PrintToChat(i, "%s%t", PREFIX, "turns until switch", SimulateTurnsToSeeker(g_iHiderToSeekerQueue[i]));
         }
 
         if (IsClientInGame(i)) {
@@ -65,7 +65,7 @@ public Action Event_OnRoundEnd(Handle event, const char[] name, bool dontBroadca
         ManageCTQueue();
 
     for (int i = 1; i <= MaxClients; i++) {
-        if (IsClientConnected(i))
+        if (IsClientInGame(i))
             g_iPlayerScore[i] = GetEntProp(i, Prop_Data, "m_iFrags");
     }
 
@@ -113,7 +113,7 @@ public Action Event_OnRoundEnd_Pre(Handle event, const char[] name, bool dontBro
     }
 
     for (int i = 1; i <= MaxClients; i++) {
-        if (IsClientConnected(i) && IsPlayerAlive(i)) {
+        if (IsClientInGame(i) && IsPlayerAlive(i)) {
             if (GetClientTeam(i) == CS_TEAM_T)
                 aliveTs = true;
             else aliveCTs = true;
@@ -160,14 +160,14 @@ public Action Timer_MakeRandomClientWhistle(Handle timer, bool firstcall) {
     float repeatDelay = FloatDiv(GetConVarFloat(cvar_ForcePeriodicWhistle), 2.0);
 
     if (firstcall) {
-        PrintToChatAll("%s%T", PREFIX, "will whistle", RoundToFloor(repeatDelay));
+        PrintToChatAll("%s%t", PREFIX, "will whistle", RoundToFloor(repeatDelay));
     } else {
         int client = GetRandomClient(CS_TEAM_T, true);
         MakeClientWhistle(client);
 
-        char name[128];
+        char name[32];
         GetClientName(client, name, sizeof(name));
-        PrintToChatAll("%s%T", PREFIX, "whistled", name);
+        PrintToChatAll("%s%t", PREFIX, "periodic whistle", name);
     }
 
     g_hPeriodicWhistleTimer = CreateTimer(repeatDelay, Timer_MakeRandomClientWhistle, !firstcall, TIMER_FLAG_NO_MAPCHANGE);
