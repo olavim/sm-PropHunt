@@ -21,6 +21,9 @@ public Action Event_OnRoundStart(Handle event, const char[] name, bool dontBroad
         }
     }
 
+    int iTimeLeft = GameRules_GetProp("m_iRoundTime");
+    PrintToServer("Debug: %d", iTimeLeft);
+    g_hRoundEndTimer = CreateTimer(float(iTimeLeft) - 0.5, Timer_RoundEnd, _, TIMER_FLAG_NO_MAPCHANGE);
     g_hAfterFreezeTimer = CreateTimer(GetConVarFloat(cvar_FreezeTime), Timer_AfterFreezeTime, _, TIMER_FLAG_NO_MAPCHANGE); 
 
     if (GetConVarBool(cvar_TurnsToScramble)) {
@@ -31,7 +34,7 @@ public Action Event_OnRoundStart(Handle event, const char[] name, bool dontBroad
 
     return Plugin_Continue;
 }
-
+/*
 // make sure terrorists win on round time end
 public Action CS_OnTerminateRound(float &delay, CSRoundEndReason &reason) {
     if (reason != CSRoundEnd_TerroristWin) {
@@ -45,7 +48,7 @@ public Action CS_OnTerminateRound(float &delay, CSRoundEndReason &reason) {
 
     return Plugin_Continue;
 }
-
+*/
 public Action Event_OnRoundEnd(Handle event, const char[] name, bool dontBroadcast) {
 
     // round has ended. used to not decrease seekers hp on shoot
@@ -59,6 +62,7 @@ public Action Event_OnRoundEnd(Handle event, const char[] name, bool dontBroadca
     UnsetHandle(g_hWhistleDelay);
     UnsetHandle(g_hAfterFreezeTimer);
     UnsetHandle(g_hPeriodicWhistleTimer);
+    UnsetHandle(g_hRoundEndTimer);
 
     if (!GetConVarInt(cvar_TurnsToScramble))
         ManageCTQueue();
@@ -96,7 +100,6 @@ public Action Event_OnRoundEnd(Handle event, const char[] name, bool dontBroadca
 // give terrorists frags
 public Action Event_OnRoundEnd_Pre(Handle event, const char[] name, bool dontBroadcast) {
     int winnerTeam = GetEventInt(event, "winner");
-    bool aliveTs, aliveCTs;
 
     if (winnerTeam == CS_TEAM_T) {
         int increaseFrags = GetConVarInt(cvar_HiderWinFrags);
@@ -111,27 +114,29 @@ public Action Event_OnRoundEnd_Pre(Handle event, const char[] name, bool dontBro
         }
     }
 
+    return Plugin_Continue;
+}
+
+public Action Timer_RoundEnd(Handle timer) {
+    g_hRoundEndTimer = INVALID_HANDLE;
+
+    int winnerTeam;
+    bool aliveTs;
+
     for (int i = 1; i <= MaxClients; i++) {
         if (IsClientInGame(i) && IsPlayerAlive(i)) {
             if (GetClientTeam(i) == CS_TEAM_T)
                 aliveTs = true;
-            else aliveCTs = true;
         }
     }
 
-    // victory by time
-    if (aliveCTs && aliveTs) {
-
-        // internal score
-        if (winnerTeam == CS_TEAM_CT)
-            CS_SetTeamScore(CS_TEAM_CT, CS_GetTeamScore(CS_TEAM_CT) - 1);
-        CS_SetTeamScore(CS_TEAM_T, CS_GetTeamScore(CS_TEAM_T) + 1);
-
-        // update visually as well
-        SetTeamScore(CS_TEAM_CT, CS_GetTeamScore(CS_TEAM_CT));
-        SetTeamScore(CS_TEAM_T, CS_GetTeamScore(CS_TEAM_T));
+    if (aliveTs) {
+        winnerTeam = CS_TEAM_T;
+    } else {
+        winnerTeam = CS_TEAM_CT;
     }
 
+    ForceRoundEnd(winnerTeam);
     return Plugin_Continue;
 }
 

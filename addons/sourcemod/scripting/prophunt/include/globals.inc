@@ -85,7 +85,7 @@ int forced_values[sizeof(protected_cvars)] = {
     0, // mp_teams_unbalance_limit
     0, // mp_show_voice_icons
     -1,// spec_freeze_time
-    0, // mp_default_team_winner_no_objective
+    3, // mp_default_team_winner_no_objective
 };
 
 int previous_values[sizeof(protected_cvars)] = {0, ...}; 
@@ -101,6 +101,7 @@ Handle g_hFreezeCTTimer[MAXPLAYERS] = {INVALID_HANDLE, ...};
 Handle g_hRoundTimeTimer = INVALID_HANDLE;
 Handle g_hPeriodicWhistleTimer = INVALID_HANDLE;
 Handle g_hAfterFreezeTimer = INVALID_HANDLE;
+Handle g_hRoundEndTimer = INVALID_HANDLE;
 
 /* team balance ------------------------------------------------- */
 

@@ -82,6 +82,32 @@ stock void ManageCTQueue() {
     }
 }
 
+stock void ForceRoundEnd(int team) {
+    int iEnt = -1;
+    iEnt = FindEntityByClassname(iEnt, "game_round_end");
+
+    if (iEnt < 1) {
+        iEnt = CreateEntityByName("game_round_end");
+        if (IsValidEntity(iEnt)) {
+            DispatchSpawn(iEnt);
+        } else {
+            PrintToServer("Debug: Unable to find or create a game_round_end entity.");
+            return;
+        }
+    }
+
+    SetVariantFloat(5.0);
+    if (team == CS_TEAM_T) {
+        AcceptEntityInput(iEnt, "EndRound_TerroristsWin");
+    } else if (team == CS_TEAM_CT) {
+        AcceptEntityInput(iEnt, "EndRound_CounterTerroristsWin");
+    }
+
+    int iScore = CS_GetTeamScore(team);
+    CS_SetTeamScore(team, iScore + 1);
+    SetTeamScore(team, iScore + 1);
+}
+
 public void EntOutput_OnClose(const char[] output, int caller, int activator, float delay) {
     AcceptEntityInput(caller, "Open");
 }
