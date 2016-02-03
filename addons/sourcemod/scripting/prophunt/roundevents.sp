@@ -21,7 +21,6 @@ public Action Event_OnRoundStart(Handle event, const char[] name, bool dontBroad
         }
     }
 
-    g_hPeriodicWhistleTimer = INVALID_HANDLE;
     g_hAfterFreezeTimer = CreateTimer(GetConVarFloat(cvar_FreezeTime), Timer_AfterFreezeTime, _, TIMER_FLAG_NO_MAPCHANGE); 
 
     if (GetConVarBool(cvar_TurnsToScramble)) {
@@ -122,8 +121,9 @@ public Action Event_OnRoundEnd_Pre(Handle event, const char[] name, bool dontBro
 
     // victory by time
     if (aliveCTs && aliveTs) {
+
         // internal score
-        if (winnerTeam != CS_TEAM_T)
+        if (winnerTeam == CS_TEAM_CT)
             CS_SetTeamScore(CS_TEAM_CT, CS_GetTeamScore(CS_TEAM_CT) - 1);
         CS_SetTeamScore(CS_TEAM_T, CS_GetTeamScore(CS_TEAM_T) + 1);
 
