@@ -122,10 +122,9 @@ stock bool KvJumpToSiblingKey(Handle kv, char[] target) {
  * @noreturn
  */
 stock void KvMerge(Handle kv_to, Handle kv_from) {
-    char key_from[MAX_SECTION_LENGTH], key_to[MAX_SECTION_LENGTH], value_from[128];
+    char key_from[MAX_SECTION_LENGTH];
     do {
         KvGetSectionName(kv_from, key_from, sizeof(key_from));
-        KvGetSectionName(kv_to, key_to, sizeof(key_to));
 
         if (KvIsEmptyTree(kv_from)) {
             KvGoBack(kv_to);
