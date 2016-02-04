@@ -71,20 +71,21 @@ ph_turns_to_scramble        0+      Scramble teams every x turns. 0: disable scr
 There are a number of cvars that are "protected", that is, the server enforces their values to ensure fluid gameplay.
 
 ```
-mp_flashlight               0
-sv_footsteps                0
-mp_limitteams               0
-mp_autoteambalance          0
-mp_freezetime               0
-sv_nonemesis                1
-sv_nomvp                    1
-sv_nostats                  1
-mp_playerid                 1
-sv_allowminmodels           0
-sv_turbophysics             1
-mp_teams_unbalance_limit    0
-mp_show_voice_icons         0
-spec_freeze_time            -1
+mp_flashlight                       0
+sv_footsteps                        0
+mp_limitteams                       0
+mp_autoteambalance                  0
+mp_freezetime                       0
+sv_nonemesis                        1
+sv_nomvp                            1
+sv_nostats                          1
+mp_playerid                         1
+sv_allowminmodels                   0
+sv_turbophysics                     1
+mp_teams_unbalance_limit            0
+mp_show_voice_icons                 0
+spec_freeze_time                    -1
+mp_default_team_winner_no_objective 3   // might be removed
 ```
 
 ## Installation
@@ -96,7 +97,7 @@ If you download this project zipped, just extract everything to your server's CS
 - `addons/sourcemod/plugins/prophunt.smx`
 - `addons/sourcemod/configs/prophunt/default.cfg`
 - `addons/sourcemod/translations/plugin.prophunt.txt`
-- `sound/prophunt/` and all the files inside. This will be configurable in the future.
+- `sound/prophunt/` and all the files inside.
 
 If everything seems to be in order, go and fire up the server! A config file should have been generated in
 `cfg/sourcemod/plugin.prophunt.cfg`. Edit it as you see fit and restart your server to see the changes.
@@ -140,6 +141,8 @@ You can also specify model list includes. Including works by specifying model li
 ```
 "Models"
 {
+    ...
+    
     "#include" {
         "signs.cfg" {
             "recurse" "yes"
@@ -169,6 +172,13 @@ First of all, just like the installation instructions **above**, you need Metamo
 Elementary, dear Watson.
 
 ## Version history
+
+**v1.0.5.1**
+
+- Fixed scoring and winner announcement.
+- Fixed some teambalancing issues.
+- Fixed some issues with periodic whistles.
+- New phrases in the translation file.
 
 **v1.0.5**
 
