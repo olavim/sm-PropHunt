@@ -46,6 +46,12 @@ stock bool KvGetStringByIndex(Handle kv, int index, char[] value, int maxlength)
     return true;
 }
 
+/**
+ * Returns whether ot not the current key is an empty tree (section).
+ *
+ * @param kv    KeyValues handle.
+ * @return      True if current key is a tree and is empty, false otherwise.
+ */
 stock bool KvIsEmptyTree(Handle kv) {
     if (KvGotoFirstSubKey(kv, false)) {
         KvGoBack(kv);
@@ -57,6 +63,12 @@ stock bool KvIsEmptyTree(Handle kv) {
     return StrEqual(value, "#novalue"); // is it an empty tree
 }
 
+/**
+ * Returns whether ot not the current key is a tree (section).
+ *
+ * @param kv    KeyValues handle.
+ * @return      True if current key is a tree (section), false otherwise.
+ */
 stock bool KvIsTree(Handle kv) {
     if (KvGotoFirstSubKey(kv, false)) {
         KvGoBack(kv);
@@ -68,6 +80,12 @@ stock bool KvIsTree(Handle kv) {
     return StrEqual(value, "#novalue"); // is it an empty tree
 }
 
+/**
+ * Returns whether or not the current section has a specific subkey.
+ *
+ * @param kv    KeyValues handle.
+ * @return      True if current key exists under current key, false otherwise.
+ */
 stock bool KvKeyExists(Handle kv, char[] key) {
     bool keyExists;
     if (keyExists = KvJumpToKey(kv, key))
@@ -76,24 +94,13 @@ stock bool KvKeyExists(Handle kv, char[] key) {
     return keyExists;
 }
 
-stock bool KvGotoNextAvailableKey(Handle kv, int traverseFlags=TRAVERSE_UP|TRAVERSE_DOWN) {
-    if (traverseFlags | TRAVERSE_DOWN && KvGotoFirstSubKey(kv, false))
-        return true;
-
-    if (KvGotoNextKey(kv, false))
-        return true;
-    
-    if (traverseFlags | TRAVERSE_UP) {
-        while (KvNodesInStack(kv) > 0) {
-            if (KvGotoNextKey(kv, false))
-                return true;
-            KvGoBack(kv);
-        }
-    }
-
-    return false;
-}
-
+/**
+ * Jumps to a key that is on the same level as the current one,
+ * if such a key exists.
+ *
+ * @param kv    KeyValues handle.
+ * @return      True if the key existed, false otherwise.
+ */
 stock bool KvJumpToSiblingKey(Handle kv, char[] target) {
     char start[MAX_SECTION_LENGTH];
     KvGetSectionName(kv, start, sizeof(start));
@@ -206,10 +213,3 @@ stock void KvAddIncludes(KeyValues kv) {
     kv.Rewind();
 }
 
-stock void DumpKeyValues(Handle kv) {
-    char key[128], value[128];
-    do {
-        KvGetSectionName(kv, key, sizeof(key));
-        PrintToServer("Dump: %s", key);
-    } while(KvGotoNextAvailableKey(kv));
-}
