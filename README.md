@@ -175,6 +175,7 @@ Elementary, dear Watson.
 
 **v1.0.5.1**
 
+- Fixed CTs not being unfreezed.
 - Fixed scoring and winner announcement.
 - Fixed some teambalancing issues.
 - Fixed some issues with periodic whistles.
