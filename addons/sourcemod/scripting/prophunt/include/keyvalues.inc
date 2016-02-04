@@ -1,7 +1,5 @@
 
 #define MAX_SECTION_LENGTH  128
-#define TRAVERSE_DOWN       (1<<0)
-#define TRAVERSE_UP         (1<<1)
 
 /**
  * Returns the name of a key or section at a specific index
