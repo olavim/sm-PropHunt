@@ -39,14 +39,14 @@ stock int GetRandomClient(int team, bool onlyAlive=false, bool onlyNonSwitching=
     return clients[GetRandomInt(0, clientIndex-1)];
 }
 
-stock void PreventCTFire(PHClient client, int &buttons) {
-    if (!client || client.team != CS_TEAM_CT)
+stock void PreventCTFire(int client, int &buttons) {
+    if (GetClientTeam(client) != CS_TEAM_CT)
         return;
 
     char weaponName[30];
 
-    GetClientWeapon(client.index, weaponName, sizeof(weaponName));
-    if (g_bIsCTWaiting[client.index] && (buttons & IN_ATTACK || buttons & IN_ATTACK2)) {
+    GetClientWeapon(client, weaponName, sizeof(weaponName));
+    if (g_bIsCTWaiting[client] && (buttons & IN_ATTACK || buttons & IN_ATTACK2)) {
         // dont allow shooting in the beginning of the round
         buttons &= ~IN_ATTACK;
         buttons &= ~IN_ATTACK2;
@@ -104,21 +104,21 @@ stock void RemoveClientRadar(int client) {
     SetEntProp(client, Prop_Send, "m_iHideHUD", hud | 1<<12);
 }
 
-stock void SlayClient(PHClient client) {
-    if (client && client.isAlive)
-        ForcePlayerSuicide(client.index);
+stock void SlayClient(int client) {
+    if (IsPlayerAlive(client))
+        ForcePlayerSuicide(client);
 }
 
-stock void FreezePlayer(PHClient client) {
+stock void FreezePlayer(int client) {
 
     // Force him to watch at the ground.
     float fPlayerEyes[3];
-    GetClientEyeAngles(client.index, fPlayerEyes);
+    GetClientEyeAngles(client, fPlayerEyes);
     fPlayerEyes[0] = 180.0;
-    client.Teleport(NULL_VECTOR, fPlayerEyes, NULL_VECTOR);
-    SetEntData(client.index, g_Freeze, FL_CLIENT | FL_ATCONTROLS, 4, true);
-    client.SetMoveType(MOVETYPE_NONE);
-    BlindClient(client.index, true);
+    TeleportEntity(client, NULL_VECTOR, fPlayerEyes, NULL_VECTOR);
+    SetEntData(client, g_Freeze, FL_CLIENT | FL_ATCONTROLS, 4, true);
+    SetEntityMoveType(client, MOVETYPE_NONE);
+    BlindClient(client, true);
 }
 
 stock void UnFreezePlayer(int client) {
@@ -130,17 +130,17 @@ stock void UnFreezePlayer(int client) {
     PrintToChat(client, "%s%t", PREFIX, "Go search");
 }
 
-stock void CheckClientHasKnife(PHClient client) {
-    if (client.isAlive) {
-        int iWeapon = GetPlayerWeaponSlot(client.index, 2);
+stock void CheckClientHasKnife(int client) {
+    if (IsPlayerAlive(client)) {
+        int iWeapon = GetPlayerWeaponSlot(client, 2);
         if (iWeapon == -1) {
-            iWeapon = GivePlayerItem(client.index, "weapon_knife");
+            iWeapon = GivePlayerItem(client, "weapon_knife");
         }
     }
 }
 
-stock void SaveClientSpawnPosition(PHClient client) {
-    client.GetOrigin(g_fSpawnPosition[client]);
+stock void SaveClientSpawnPosition(int client) {
+    Entity_GetAbsOrigin(client, g_fSpawnPosition[client]);
 }
 
 static stock bool UTIL_VectorEqual(const float vec1[3], const float vec2[3], const float tolerance) {
@@ -219,54 +219,48 @@ stock void MakeClientWhistle(int client) {
     EmitSoundToAll(buffer, client, SNDCHAN_AUTO, SNDLEVEL_GUNFIRE);
 }
 
-stock void Client_ResetFakeProp(PHClient client) {
-    if (client) {
-        client.RemoveChild();
-        client.SetFreezed(false);
-    }
+stock void Client_ResetFakeProp(int client) {
+    Entity_RemoveChild(client);
+    Client_SetFreezed(client, false);
 }
 
-stock void Client_UpdateFakeProp(int _client) {
-    PHClient client = GetPHClient(_client);
-    if (!client)
-        return;
+stock void Client_UpdateFakeProp(int client) {
+    if (GetClientTeam(client) != CS_TEAM_T || !IsPlayerAlive(client)) {
+        if (g_bShowFakeProp[client]) {
+            g_bShowFakeProp[client] = false;
 
-    if (client.team != CS_TEAM_T || !client.isAlive) {
-        if (g_bShowFakeProp[client.index]) {
-            g_bShowFakeProp[client.index] = false;
-
-            SetEntityRenderMode(client.index, RENDER_TRANSCOLOR);
+            SetEntityRenderMode(client, RENDER_TRANSCOLOR);
         }
 
-        if (client.hasChild || client.isFreezed)
+        if (Entity_HasChild(client) || IsClientFreezed(client))
             Client_ResetFakeProp(client);
 
         return;
     }
 
     //No fake prop exist? Create a one
-    if (!client.hasChild) {
-        if (g_bShowFakeProp[client.index]) {
-            g_bShowFakeProp[client.index] = false;
+    if (!Entity_HasChild(client)) {
+        if (g_bShowFakeProp[client]) {
+            g_bShowFakeProp[client] = false;
 
-            SetEntityRenderMode(client.index, RENDER_TRANSCOLOR);
+            SetEntityRenderMode(client, RENDER_TRANSCOLOR);
         }
         Client_ReCreateFakeProp(client);
         return;
     }
 
-    if (GetEntityRenderMode(client.index) == RENDER_TRANSCOLOR) {
-        PrintToServer("Debug: Wrong fucking render mode.");
-        SetEntityRenderMode(client.index, RENDER_NONE);
+    if (GetEntityRenderMode(client) == RENDER_TRANSCOLOR) {
+        PrintToServer("Debug: Wrong render mode.");
+        SetEntityRenderMode(client, RENDER_NONE);
     }
 }
 
-stock void Client_ReCreateFakeProp(PHClient client) {
-    client.RemoveChild();
+stock void Client_ReCreateFakeProp(int client) {
+    Entity_RemoveChild(client);
 
     //Det model
     char fullPath[100];
-    GetClientModel(client.index, fullPath, sizeof(fullPath));
+    GetClientModel(client, fullPath, sizeof(fullPath));
 
     //Create Fake Model
     int entity = CreateEntityByName("prop_physics_override");
@@ -274,33 +268,28 @@ stock void Client_ReCreateFakeProp(PHClient client) {
         PrecacheModel(fullPath, true);
         SetEntityModel(entity, fullPath);
         SetEntityMoveType(entity, MOVETYPE_NONE);
-        SetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity", client.index);
+        SetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity", client);
         SetEntProp(entity, Prop_Data, "m_CollisionGroup", 1);
         SetEntProp(entity, Prop_Send, "m_usSolidFlags", 12);
         SetEntProp(entity, Prop_Send, "m_nSolidType", 6);
         DispatchSpawn(entity);
         SetEntData(entity, g_Freeze, FL_CLIENT | FL_ATCONTROLS, 4, true);
         SetEntityMoveType(entity, MOVETYPE_NONE);
-        SetEntPropEnt(entity, Prop_Data, "m_hLastAttacker", client.index);
+        SetEntPropEnt(entity, Prop_Data, "m_hLastAttacker", client);
 
-        SetEntityRenderMode(client.index, RENDER_NONE);
+        SetEntityRenderMode(client, RENDER_NONE);
         SetEntityRenderMode(entity, RENDER_TRANSCOLOR);
 
-        PHEntity child = new PHEntity(entity);
-        //child.TeleportTo(client);
-        client.SetChild(child);
-        if (client.isFreezed)
-            client.DetachChild();
+        Entity_SetChild(client, entity);
+        if (IsClientFreezed(client))
+            Entity_DetachChild(client);
     } else {
-        client.RemoveChild();
+        Entity_RemoveChild(client);
     }
 }
 
 // set a random model to a client
-stock void SetRandomModel(int _client) {
-    PHClient client = GetPHClient(_client);
-    if (!client)
-        return;
+stock void SetRandomModel(int client) {
 
     // give him a random one.
     char ModelPath[80], finalPath[100], ModelName[60];
@@ -318,21 +307,21 @@ stock void SetRandomModel(int _client) {
 
     FormatEx(finalPath, sizeof(finalPath), "models/%s.mdl", ModelPath);
 
-    SetEntityModel(client.index, finalPath);
+    SetEntityModel(client, finalPath);
     Client_ReCreateFakeProp(client);
 
-    if (!IsFakeClient(client.index)) {
+    if (!IsFakeClient(client)) {
         KvGetString(g_hMenuKV, ModelPath, ModelName, sizeof(ModelName));
-        PrintToChat(client.index, "%s%t \x01%s.", PREFIX, "Model Changed", ModelName);
+        PrintToChat(client, "%s%t \x01%s.", PREFIX, "Model Changed", ModelName);
     }
 
     KvRewind(g_hMenuKV);
-    g_iModelChangeCount[client.index]++;
+    g_iModelChangeCount[client]++;
 
     // display the help menu on first spawn
-    if (GetConVarBool(cvar_ShowHelp) && g_bFirstSpawn[client.index]) {
-        Cmd_DisplayHelp(client.index, 0);
-        g_bFirstSpawn[client.index] = false;
+    if (GetConVarBool(cvar_ShowHelp) && g_bFirstSpawn[client]) {
+        Cmd_DisplayHelp(client, 0);
+        g_bFirstSpawn[client] = false;
     }
 }
 

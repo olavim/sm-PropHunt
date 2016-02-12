@@ -5,356 +5,74 @@
 
 #define MAXENTITIES 2048
 
-methodmap PHEntity __nullable__
-{
-    /**
-     * Creates a new PHEntity wrapper for an entity.
-     *
-     * @param entity     Entity to wrap.
-     */
-    public PHEntity(int entity) {
-        return view_as<PHEntity>(entity);
-    }
-
-    /**
-     * Returns the underlying entity.
-     */
-    property int index {
-        public get() {
-            return view_as<int>(this);
-        }
-    }
-
-    /**
-     * Returns true if this entity has a child entity,
-     * and the child is a valid entity.
-     */
-    property bool hasChild {
-        public get() {
-            return PHEntity_HasChild(this);
-        }
-    }
-
-    /**
-     * Returns the entity whose parent this entity is,
-     * if any.
-     */
-    property PHEntity child {
-        public get() {
-            return PHEntity_GetChild(this);
-        }
-    }
-
-    /**
-     * Gets the absolute origin (position) of this entity.
-     *
-     * @param vec       Vector array to hold the origin.
-     * @noreturn
-     */
-    public void GetOrigin(float vec[3]) {
-        PHEntity_GetOrigin(this, vec);
-    }
-
-    /**
-     * Gets the absolute angles (rotation) of this entity.
-     *
-     * @param vec       Vector array to hold the angles.
-     * @noreturn
-     */
-    public void GetAbsAngles(float vec[3]) {
-        PHEntity_GetAbsAngles(this, vec);
-    }
-
-    /**
-     * Gets the absolute velocity of this entity.
-     *
-     * @param vec       Vector array to hold the velocity.
-     * @noreturn
-     */
-    public void GetVelocity(float vec[3]) {
-        PHEntity_GetVelocity(this, vec);
-    }
-
-    /**
-     * Sets this entity's movetype.
-     *
-     * @mt          New MoveType.
-     * @noreturn
-     */
-    public void SetMoveType(MoveType mt) {
-        PHEntity_SetMoveType(this, mt);
-    }
-
-    /**
-     * Sets this entity's movement speed multiplier.
-     *
-     * @param speed     New speed multiplier. 1.0 for original speed.
-     * @noreturn
-     */
-    public void SetMovementSpeed(float speed) {
-        PHEntity_SetMovementSpeed(this, speed);
-    }
-
-    /**
-     * Makes this entity an entity's parent.
-     *
-     * @param entity    Child entity.
-     * @noreturn
-
-     */
-    public void SetChild(PHEntity entity) {
-        PHEntity_SetChild(this, entity);
-    }
-
-    /**
-     * Detaches and forgets the entity whose parent this entity is.
-     * Attaching will no more be possible with AttachChild().
-     *
-     * @noreturn
-     */
-    public void RemoveChild() {
-        PHEntity_RemoveChild(this);
-    }
-
-    /**
-     * Attaches this entity's child to this entity, if previously detached.
-     * Not possible if the child has been removed.
-     *
-     * @noreturn
-     */
-    public void AttachChild() {
-        PHEntity_AttachChild(this);
-    }
-
-    /**
-     * Detaches this entity's child from this entity. It may be reattached
-     * with AttachChild().
-     *
-     * @noreturn
-     */
-    public void DetachChild() {
-        PHEntity_DetachChild(this);
-    }
-
-    /**
-     * Teleports this entity.
-     *
-     * @param origin    New origin (position), or NULL_VECTOR for no change.
-     * @param angles    New angles, or NULL_VECTOR for no change.
-     * @param velocity  New velocity (position), or NULL_VECTOR for no change.
-     * @noreturn
-     */
-    public void Teleport(const float origin[3], const float angles[3], const float velocity[3]) {
-        PHEntity_Teleport(this, origin, angles, velocity);
-    }
-
-    /**
-     * Teleports this entity to another entity.
-     *
-     * @param target    Entity to teleport to.
-     * @param ang       New angles, or NULL_VECTOR for no change.
-     * @param vel       New velocity, or NULL_VECTOR for no change.
-     * @noreturn
-     */
-    public void TeleportTo(PHEntity target, const float ang[3]=NULL_VECTOR, const float vel[3]=NULL_VECTOR) {
-        PHEntity_TeleportTo(this, target, ang, vel);
-    }
-
-}
-
-PHEntity g_iEntities[MAXENTITIES+1] = {null, ...};
-PHEntity g_iEntityChildren[MAXENTITIES+1] = {null, ...};
+int g_iEntities[MAXENTITIES+1] = {0, ...};
+int g_iEntityChildren[MAXENTITIES+1] = {0, ...};
 int g_iNumEntities = 0;
 
-/**
- * Returns true if an entity has a child entity,
- * and the child is a valid entity.
- *
- * @param entity    Entity.
- */
-stock bool PHEntity_HasChild(PHEntity entity) {
-    PHEntity child = g_iEntityChildren[entity.index];
-    return child != null && IsValidEntity(child.index);
+stock bool Entity_HasChild(int entity) {
+    int child = g_iEntityChildren[entity];
+    return child != 0 && IsValidEntity(child);
 }
 
-/**
- * Returns the entity whose parent this entity is,
- * if any.
- *
- * @param entity    Entity.
- */
-stock PHEntity PHEntity_GetChild(PHEntity entity) {
-    return g_iEntityChildren[entity.index];
+stock int Entity_GetChild(int entity) {
+    return g_iEntityChildren[entity];
 }
 
-/**
- * Gets the absolute origin (position) of an entity.
- *
- * @param entity    Entity.
- * @param vec       Vector array to hold the origin.
- * @noreturn
- */
-stock void PHEntity_GetOrigin(PHEntity entity, float vec[3]) {
-    GetEntPropVector(entity.index, Prop_Send, "m_vecOrigin", vec);
+stock void Entity_GetAbsOrigin(int entity, float vec[3]) {
+    GetEntPropVector(entity, Prop_Send, "m_vecOrigin", vec);
 }
 
-/**
- * Gets the absolute angles (rotation) of an entity.
- *
- * @param entity    Entity.
- * @param vec       Vector array to hold the angles.
- * @noreturn
- */
-stock void PHEntity_GetAbsAngles(PHEntity entity, float vec[3]) {
-    GetEntPropVector(entity.index, Prop_Send, "m_angAbsRotation", vec);
+stock void Entity_GetAbsAngles(int entity, float vec[3]) {
+    GetEntPropVector(entity, Prop_Send, "m_angAbsRotation", vec);
 }
 
-/**
- * Gets the absolute velocity of an entity.
- *
- * @param entity    Entity.
- * @param vec       Vector array to hold the velocity.
- * @noreturn
- */
-stock void PHEntity_GetVelocity(PHEntity entity, float vec[3]) {
-    GetEntPropVector(entity.index, Prop_Send, "m_vecAbsVelocity", vec);
+stock void Entity_GetVelocity(int entity, float vec[3]) {
+    GetEntPropVector(entity, Prop_Send, "m_vecAbsVelocity", vec);
 }
 
-/**
- * Sets an entity's movetype.
- *
- * @param entity    Entity.
- * @mt              New MoveType.
- * @noreturn
- */
-stock void PHEntity_SetMoveType(PHEntity entity, MoveType mt) {
-    SetEntityMoveType(entity.index, mt);
+stock void Entity_SetMovementSpeed(int entity, float speed) {
+    SetEntPropFloat(entity, Prop_Send, "m_flLaggedMovementValue", speed);
 }
 
-/**
- * Sets an entity's movement speed multiplier.
- *
- * @param entity    Entity.
- * @param speed     New speed multiplier. 1.0 for original speed.
- * @noreturn
- */
-stock void PHEntity_SetMovementSpeed(PHEntity entity, float speed) {
-    SetEntPropFloat(entity.index, Prop_Send, "m_flLaggedMovementValue", speed);
-}
+stock void Entity_SetChild(int entity, int child) {
+    if (Entity_HasChild(entity))
+        Entity_RemoveChild(entity);
 
-/**
- * Makes an entity some entity's parent.
- *
- * @param entity    Entity.
- * @param entity    Child entity.
- * @noreturn
-
- */
-stock void PHEntity_SetChild(PHEntity entity, PHEntity child) {
-    if (entity.hasChild)
-        entity.RemoveChild();
-
-    g_iEntityChildren[entity.index] = child;
-    entity.AttachChild();
+    g_iEntityChildren[entity] = child;
+    Entity_AttachChild(entity);
     g_iNumEntities++;
-}
+ }
 
-/**
- * Detaches and forgets the entity whose parent this entity is.
- * Attaching will no more be possible with PHEntity_AttachChild.
- *
- * @param entity    Entity.
- * @noreturn
- */
-stock void PHEntity_RemoveChild(PHEntity entity) {
-    if (g_iEntityChildren[entity.index] != null) {
-        entity.DetachChild();
-        if (entity.hasChild)
-            AcceptEntityInput(entity.child.index, "kill");
+stock void Entity_RemoveChild(int entity) {
+    if (g_iEntityChildren[entity] != 0) {
+        Entity_DetachChild(entity);
+        if (Entity_HasChild(entity))
+            AcceptEntityInput(Entity_GetChild(entity), "kill");
 
-        g_iEntityChildren[entity.index] = null;
+        g_iEntityChildren[entity] = 0;
         g_iNumEntities--;
     }
 }
 
-/**
- * Attaches an entity's child to the entity, if previously detached.
- * Not possible if the child has been removed.
- *
- * @param entity    Entity.
- * @noreturn
- */
-stock void PHEntity_AttachChild(PHEntity entity) {
-    if (entity.hasChild) {
-        PHEntity child = entity.child;
-        child.TeleportTo(entity);
+stock void Entity_AttachChild(int entity) {
+    if (Entity_HasChild(entity)) {
+        int child = Entity_GetChild(entity);
+        Entity_TeleportTo(child, entity);
 
         SetVariantString("!activator");
-        AcceptEntityInput(entity.child.index, "SetParent", entity.index, child.index, 0);
+        AcceptEntityInput(child, "SetParent", entity, child, 0);
     }
 }
 
-/**
- * Detaches an entity's child from this entity. It may be reattached
- * with AttachChild().
- *
- * @param entity    Entity.
- * @noreturn
- */
-stock void PHEntity_DetachChild(PHEntity entity) {
-    if (entity.hasChild) {
+stock void Entity_DetachChild(int entity) {
+    if (Entity_HasChild(entity)) {
         SetVariantString("");
-        AcceptEntityInput(entity.child.index, "ClearParent");
+        AcceptEntityInput(Entity_GetChild(entity), "ClearParent");
     }
 }
 
-/**
- * Teleports an entity.
- *
- * @param entity    Entity.
- * @param origin    New origin (position), or NULL_VECTOR for no change.
- * @param angles    New angles, or NULL_VECTOR for no change.
- * @param velocity  New velocity (position), or NULL_VECTOR for no change.
- * @noreturn
- */
-stock void PHEntity_Teleport(PHEntity entity, const float origin[3], const float angles[3], const float velocity[3]) {
-    TeleportEntity(entity.index, origin, angles, velocity);
-}
-
-/**
- * Teleports an entity to another entity.
- *
- * @param entity    Entity.
- * @param target    Entity to teleport to.
- * @param ang       New angles, or NULL_VECTOR for no change.
- * @param vel       New velocity, or NULL_VECTOR for no change.
- * @noreturn
- */
-stock void PHEntity_TeleportTo(PHEntity entity, PHEntity target, const float ang[3]=NULL_VECTOR, const float vel[3]=NULL_VECTOR) {
+stock void Entity_TeleportTo(int entity, int target, const float ang[3]=NULL_VECTOR, const float vel[3]=NULL_VECTOR) {
     float orig[3];
-    target.GetOrigin(orig);
-    PHEntity_Teleport(entity, orig, ang, vel);
-}
-
-stock PHEntity GetPHEntity(int entity) {
-    if (entity < 1 || entity > MAXENTITIES)
-        return null;
-
-    return g_iEntities[entity];
-}
-
-stock PHEntity RegisterPHEntity(int entity) {
-    if (entity < 1 || entity > MAXENTITIES)
-        return null;
-
-    g_iEntities[entity] = new PHEntity(entity);
-    return g_iEntities[entity];
-}
-
-stock void UnregisterPHEntity(int _entity) {
-    PHEntity entity = GetPHEntity(_entity);
-    if (entity) {
-        entity.RemoveChild();
-        g_iEntities[entity.index] = null;
-    }
+    Entity_GetAbsOrigin(target, orig);
+    TeleportEntity(entity, orig, ang, vel);
 }

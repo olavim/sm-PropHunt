@@ -2,10 +2,8 @@
 #include "prophunt/include/phclient.inc"
 #include "prophunt/include/menuutils.inc"
 
-public int Menu_Group(Handle menu, MenuAction action, int _client, int param2) {
-    PHClient client = GetPHClient(_client);
-
-    if (client && client.team == CS_TEAM_T && g_bAllowModelChange[client.index]) {
+public int Menu_Group(Handle menu, MenuAction action, int client, int param2) {
+    if (IsClientInGame(client) && GetClientTeam(client) == CS_TEAM_T && g_bAllowModelChange[client]) {
         if (action == MenuAction_Select) {
             if (!GetConVarBool(cvar_CategorizeModels) || menu != g_hModelMenu) {
                 PrintToServer("Model select");
@@ -16,17 +14,17 @@ public int Menu_Group(Handle menu, MenuAction action, int _client, int param2) {
             }
         } else if (action == MenuAction_Cancel) {
             if (param2 == MenuCancel_ExitBack) {
-                CancelClientMenu(client.index, false);
-                DisplayMenu(g_hModelMenu, client.index, RoundToFloor(GetConVarFloat(cvar_ChangeLimittime)));
+                CancelClientMenu(client, false);
+                DisplayMenu(g_hModelMenu, client, RoundToFloor(GetConVarFloat(cvar_ChangeLimittime)));
             } else {
-                PrintToChat(client.index, "%s%t", PREFIX, "Type !hide");
+                PrintToChat(client, "%s%t", PREFIX, "Type !hide");
             }
         }
 
         // display the help menu on first spawn
-        if (GetConVarBool(cvar_ShowHelp) && g_bFirstSpawn[client.index]) {
-            Cmd_DisplayHelp(client.index, 0);
-            g_bFirstSpawn[client.index] = false;
+        if (GetConVarBool(cvar_ShowHelp) && g_bFirstSpawn[client]) {
+            Cmd_DisplayHelp(client, 0);
+            g_bFirstSpawn[client] = false;
         }
     }
 }
@@ -68,7 +66,7 @@ stock void BuildMainMenu() {
     KvAddIncludes(g_hMenuKV);
     KvCategorize(g_hMenuKV);
 
-    //KeyValuesToFile(g_hMenuKV, "kvdump.txt");
+    KeyValuesToFile(g_hMenuKV, "kvdump.txt");
 
     PrintToServer("set menu");
     g_hModelMenu = new Menu(Menu_Group);

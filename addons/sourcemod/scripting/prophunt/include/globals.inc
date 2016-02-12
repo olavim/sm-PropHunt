@@ -69,7 +69,8 @@ char protected_cvars[][] = {
     "mp_teams_unbalance_limit",
     "mp_show_voice_icons",
     "spec_freeze_time",
-    "mp_default_team_winner_no_objective"
+    "mp_default_team_winner_no_objective",
+    "mp_warmuptime"
 };
 
 int forced_values[sizeof(protected_cvars)] = {
@@ -88,6 +89,7 @@ int forced_values[sizeof(protected_cvars)] = {
     0, // mp_show_voice_icons
     -1,// spec_freeze_time
     3, // mp_default_team_winner_no_objective
+    0, // mp_warmuptime
 };
 
 int previous_values[sizeof(protected_cvars)] = {0, ...};
@@ -145,6 +147,7 @@ bool g_bInThirdPersonView[MAXPLAYERS] = {false, ...};
 bool g_bShotgun[MAXPLAYERS] = {false, ...};
 bool g_bFirstSpawn[MAXPLAYERS] = {true, ...};
 bool g_bIsCTWaiting[MAXPLAYERS] = {false, ...}; // waiting for round start
+bool g_bClientIsFreezed[MAXPLAYERS] = {false, ...};
 int g_iWhistleCount[MAXPLAYERS] = {0, ...};
 int g_iPlayerScore[MAXPLAYERS] = {0, ...};
 int g_iFirstCTSpawn;

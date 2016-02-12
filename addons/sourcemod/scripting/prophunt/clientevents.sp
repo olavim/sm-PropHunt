@@ -3,7 +3,6 @@
 #include "prophunt/include/utils.inc"
 
 public void OnClientPutInServer(int client) {
-    RegisterPHClient(client);
 
     // Hook weapon pickup
     SDKHook(client, SDKHook_WeaponCanUse, OnWeaponCanUse);
@@ -20,24 +19,23 @@ public void OnClientPutInServer(int client) {
     SDKHook(client, SDKHook_PostThinkPost, Hook_OnPostThinkPost);
 }
 
-public Action OnTakeDamage(int _client, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3]) {
-    PHClient client = GetPHClient(_client);
+public Action OnTakeDamage(int client, int &attacker, int &inflictor, float &damage,
+        int &damagetype, int &weapon, float damageForce[3], float damagePosition[3]) {
     if (damagetype & DMG_BURN) {
-        client.SetMovementSpeed(0.5);
+        Entity_SetMovementSpeed(client, 0.5);
         CreateTimer(3.0, Timer_RestoreSpeed, client);
     }
 
     return Plugin_Continue;
 }
 
-public void OnWeaponSwitchPost(int _client, int weapon) {
-    PHClient client = GetPHClient(_client);
+public void OnWeaponSwitchPost(int client, int weapon) {
     char wpn[24];
-    GetClientWeapon(client.index, wpn, 24);
+    GetClientWeapon(client, wpn, 24);
     if (StrEqual(wpn, "weapon_knife"))
-        client.SetMovementSpeed(GetConVarFloat(cvar_KnifeSpeed));
+        Entity_SetMovementSpeed(client, GetConVarFloat(cvar_KnifeSpeed));
     else
-        client.SetMovementSpeed(1.0);
+        Entity_SetMovementSpeed(client, 1.0);
 }
 
 public void OnClientDisconnect(int client) {
@@ -79,16 +77,13 @@ public void OnClientDisconnect(int client) {
     SDKUnhook(client, SDKHook_PostThinkPost, Hook_OnPostThinkPost);
     SDKUnhook(client, SDKHook_OnTakeDamage, OnTakeDamage);
 
-    UnregisterPHClient(client);
+    Entity_RemoveChild(client);
+    g_iEntities[client] = 0;
 }
 
 // prevent players from ducking
-public Action OnPlayerRunCmd(int _client, int &buttons, int &impulse, float vel[3], float angles[3],
+public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3],
         int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2]) {
-    PHClient client = GetPHClient(_client);
-    if (!client)
-        return Plugin_Continue;
-
     //PrintToServer("client: %d index: %d", view_as<int>(client), client.index);
 
     int iInitialButtons = buttons;
@@ -96,19 +91,19 @@ public Action OnPlayerRunCmd(int _client, int &buttons, int &impulse, float vel[
     PreventCTFire(client, buttons);
 
     //Freeze and rotation fix
-    Client_UpdateFakeProp(client.index);
+    Client_UpdateFakeProp(client);
 
     bool moving = buttons & IN_FORWARD || buttons & IN_BACK || buttons & IN_MOVELEFT || buttons & IN_MOVERIGHT || buttons & IN_JUMP;
-    if (client.isAlive && client.team == CS_TEAM_T) {
-        if (client.isFreezed && moving) {
-            Cmd_Freeze(client.index, 0);
+    if (IsPlayerAlive(client) && GetClientTeam(client) == CS_TEAM_T) {
+        if (IsClientFreezed(client) && moving) {
+            Cmd_Freeze(client, 0);
         }
 
         float AutoFreezeTime = GetConVarFloat(cvar_AutoFreezeTime);
-        if (moving && g_hAutoFreezeTimers[client.index] != INVALID_HANDLE) {
-            UnsetHandle(g_hAutoFreezeTimers[client.index]);
-        } else if (AutoFreezeTime && !client.isFreezed && g_hAutoFreezeTimers[client.index] == INVALID_HANDLE) {
-            g_hAutoFreezeTimers[client.index] = CreateTimer(AutoFreezeTime, Timer_AutoFreezeClient, client, TIMER_FLAG_NO_MAPCHANGE);
+        if (moving && g_hAutoFreezeTimers[client] != INVALID_HANDLE) {
+            UnsetHandle(g_hAutoFreezeTimers[client]);
+        } else if (AutoFreezeTime && !IsClientFreezed(client) && g_hAutoFreezeTimers[client] == INVALID_HANDLE) {
+            g_hAutoFreezeTimers[client] = CreateTimer(AutoFreezeTime, Timer_AutoFreezeClient, client, TIMER_FLAG_NO_MAPCHANGE);
         }
     }
 
@@ -182,20 +177,19 @@ public void Hook_OnPostThinkPost(int client) {
 }
 
 public Action Event_OnPlayerSpawn(Handle event, const char[] name, bool dontBroadcast) {
-    int _client = GetClientOfUserId(GetEventInt(event, "userid"));
-    PHClient client = GetPHClient(_client);
-
-    if (client.team <= CS_TEAM_SPECTATOR || !client.isAlive)
+    int client = GetClientOfUserId(GetEventInt(event, "userid"));
+    int team = GetClientTeam(client);
+    if (team <= CS_TEAM_SPECTATOR || !IsPlayerAlive(client))
         return Plugin_Continue;
 
-    if (client.team == CS_TEAM_T) {
+    if (team == CS_TEAM_T) {
         HandleTSpawn(client);
-    } else if (client.team == CS_TEAM_CT) {
+    } else if (team == CS_TEAM_CT) {
         HandleCTSpawn(client);
     }
 
-    CreateTimer(0.5, Timer_SaveClientSpawnPosition, client.index, TIMER_FLAG_NO_MAPCHANGE);
-    CreateTimer(0.0, Timer_RemoveClientRadar, client.index, TIMER_FLAG_NO_MAPCHANGE);
+    CreateTimer(0.5, Timer_SaveClientSpawnPosition, client, TIMER_FLAG_NO_MAPCHANGE);
+    CreateTimer(0.0, Timer_RemoveClientRadar, client, TIMER_FLAG_NO_MAPCHANGE);
 
     return Plugin_Continue;
 }
@@ -225,98 +219,90 @@ public Action Event_OnPlayerDeath_Pre(Handle event, const char[] name, bool dont
 }
 
 public Action Event_OnPlayerDeath(Handle event, const char[] name, bool dontBroadcast) {
-    int _client = GetClientOfUserId(GetEventInt(event, "userid"));
-    PHClient client = GetPHClient(_client);
+    int client = GetClientOfUserId(GetEventInt(event, "userid"));
 
-    if (!IsValidEntity(client.index))
+    if (!IsValidEntity(client))
         return Plugin_Continue;
 
-    client.SetFreezed(false);
+    Client_SetFreezed(client, false);
     //SetEntityMoveType(client.index, MOVETYPE_OBSERVER);
 
     // remove ragdolls
-    int ragdoll = GetEntPropEnt(client.index, Prop_Send, "m_hRagdoll");
+    int ragdoll = GetEntPropEnt(client, Prop_Send, "m_hRagdoll");
     if (ragdoll < 0)
         return Plugin_Continue;
 
     RemoveEdict(ragdoll);
 
-    UnFreezePlayer(client.index);
+    UnFreezePlayer(client);
 
-    UnsetHandle(g_hFreezeCTTimer[client.index]);
-    UnsetHandle(g_hAutoFreezeTimers[client.index]);
+    UnsetHandle(g_hFreezeCTTimer[client]);
+    UnsetHandle(g_hAutoFreezeTimers[client]);
 
-    CreateTimer(0.1, Timer_SetObserv, client.index, TIMER_FLAG_NO_MAPCHANGE);
-    CreateTimer(0.1, Timer_CheckObservers, client.index, TIMER_FLAG_NO_MAPCHANGE);
+    CreateTimer(0.1, Timer_SetObserv, client, TIMER_FLAG_NO_MAPCHANGE);
+    CreateTimer(0.1, Timer_CheckObservers, client, TIMER_FLAG_NO_MAPCHANGE);
 
     return Plugin_Continue;
 }
 
-public Action Timer_RestoreSpeed(Handle timer, PHClient client) {
-    if (!client || !client.isConnected)
+public Action Timer_RestoreSpeed(Handle timer, int client) {
+    if (!IsClientInGame(client))
         return Plugin_Stop;
 
-    client.SetMovementSpeed(1.0);
+    Entity_SetMovementSpeed(client, 1.0);
     return Plugin_Handled;
 }
 
-public Action Timer_RemoveClientRadar(Handle timer, PHClient client) {
-    if (!client || !client.isConnected)
+public Action Timer_RemoveClientRadar(Handle timer, int client) {
+    if (!IsClientInGame(client))
         return Plugin_Stop;
 
-    RemoveClientRadar(client.index);
+    RemoveClientRadar(client);
     return Plugin_Continue;
 }
 
-public Action Timer_AutoFreezeClient(Handle handle, PHClient client) {
-    if (!client)
-        return Plugin_Stop;
+public Action Timer_AutoFreezeClient(Handle handle, int client) {
+    g_hAutoFreezeTimers[client] = INVALID_HANDLE;
 
-    g_hAutoFreezeTimers[client.index] = INVALID_HANDLE;
-
-    if (!client.isConnected) {
+    if (IsClientInGame(client)) {
         return Plugin_Stop;
     }
 
-    if (!client.isFreezed)
-        Cmd_Freeze(client.index, 0);
+    if (!IsClientFreezed(client))
+        Cmd_Freeze(client, 0);
 
     return Plugin_Continue;
 }
 
-public Action Timer_SlayClient(Handle timer, PHClient client) {
-    if (!client || !client.isConnected)
+public Action Timer_SlayClient(Handle timer, int client) {
+    if (!IsClientInGame(client))
         return Plugin_Stop;
 
     SlayClient(client);
     return Plugin_Continue;
 }
 
-public Action Timer_FreezePlayer(Handle timer, PHClient client) {
-    if (!client)
-        return Plugin_Stop;
+public Action Timer_FreezePlayer(Handle timer, int client) {
+    g_hFreezeCTTimer[client] = INVALID_HANDLE;
 
-    g_hFreezeCTTimer[client.index] = INVALID_HANDLE;
-
-    if (!client.isConnected || !client.isAlive || !g_bIsCTWaiting[client.index]) {
+    if (!IsClientInGame(client) || !IsPlayerAlive(client) || !g_bIsCTWaiting[client])
         return Plugin_Stop;
-    }
 
     FreezePlayer(client);
     return Plugin_Continue;
 }
 
 // Make sure CTs have knifes
-public Action Timer_CheckClientHasKnife(Handle timer, PHClient client) {
-    if (!client || !client.isConnected)
+public Action Timer_CheckClientHasKnife(Handle timer, int client) {
+    if (!IsClientInGame(client))
         return Plugin_Stop;
 
     CheckClientHasKnife(client);
     return Plugin_Continue;
 }
 
-public Action Timer_SaveClientSpawnPosition(Handle timer, PHClient client) {
-    if (!client || !client.isConnected)
+public Action Timer_SaveClientSpawnPosition(Handle timer, int client) {
+    if (!IsClientInGame(client))
         return Plugin_Stop;
 
     SaveClientSpawnPosition(client);
@@ -333,65 +319,64 @@ public Action Timer_ShowClientCountdown(Handle timer, int freezeTime) {
     }
 
     g_hShowCountdownTimer = CreateTimer(0.5, Timer_ShowClientCountdown, freezeTime, TIMER_FLAG_NO_MAPCHANGE);
-
     return Plugin_Continue;
 }
 
-static void HandleTSpawn(PHClient client) {
+static void HandleTSpawn(int client) {
 
     // set the mp_forcecamera value correctly, so he can use thirdperson again
-    if (!IsFakeClient(client.index) && GetConVarInt(g_hForceCamera) == 1)
-        SendConVarValue(client.index, g_hForceCamera, "0");
+    if (!IsFakeClient(client) && GetConVarInt(g_hForceCamera) == 1)
+        SendConVarValue(client, g_hForceCamera, "0");
 
     // reset model change count
-    g_iModelChangeCount[client.index] = 0;
-    g_bInThirdPersonView[client.index] = false;
-    g_bAllowModelChange[client.index] = true;
-    UnsetHandle(g_hAllowModelChangeTimer[client.index]);
-    UnsetHandle(g_hFreezeCTTimer[client.index]);
+    g_iModelChangeCount[client] = 0;
+    g_bInThirdPersonView[client] = false;
+    g_bAllowModelChange[client] = true;
+    UnsetHandle(g_hAllowModelChangeTimer[client]);
+    UnsetHandle(g_hFreezeCTTimer[client]);
 
-    if (g_bIsCTWaiting[client.index]) {
-        g_bIsCTWaiting[client.index] = false;
-        UnFreezePlayer(client.index);
+    if (g_bIsCTWaiting[client]) {
+        g_bIsCTWaiting[client] = false;
+        UnFreezePlayer(client);
     }
 
     // set the speed
-    SetEntDataFloat(client.index, g_flLaggedMovementValue, GetConVarFloat(cvar_HiderSpeed), true);
+    SetEntDataFloat(client, g_flLaggedMovementValue, GetConVarFloat(cvar_HiderSpeed), true);
 
     // Assign a model to bots immediately and disable all menus or timers.
-    if (IsFakeClient(client.index))
-        g_hAllowModelChangeTimer[client.index] = CreateTimer(0.1, DisableModelMenu, client.index, TIMER_FLAG_NO_MAPCHANGE);
+    if (IsFakeClient(client))
+        g_hAllowModelChangeTimer[client] = CreateTimer(0.1, DisableModelMenu, client, TIMER_FLAG_NO_MAPCHANGE);
     else {
-        SetModelChangeTimer(client.index);
+        SetModelChangeTimer(client);
 
         // Set them to thirdperson automatically
         if (GetConVarBool(cvar_AutoThirdPerson))
-            SetThirdPersonView(client.index, true);
+            SetThirdPersonView(client, true);
 
-        OfferClientModel(client.index);
+        OfferClientModel(client);
     }
 
-    g_iWhistleCount[client.index] = 0;
-    client.SetFreezed(false);
+    g_iWhistleCount[client] = 0;
+    Client_SetFreezed(client, false);
 
     if (g_iFirstTSpawn == 0)
         g_iFirstTSpawn = GetTime();
 
     if (GetConVarBool(cvar_FreezeCTs))
-        PrintToChat(client.index, "%s%t", PREFIX, "seconds to hide", RoundToFloor(GetConVarFloat(cvar_FreezeTime)));
+        PrintToChat(client, "%s%t", PREFIX, "seconds to hide", RoundToFloor(GetConVarFloat(cvar_FreezeTime)));
     else
-        PrintToChat(client.index, "%s%t", PREFIX, "seconds to hide", 0);
+        PrintToChat(client, "%s%t", PREFIX, "seconds to hide", 0);
 
-    SetRandomModel(client.index);
+    SetRandomModel(client);
 }
 
-static void HandleCTSpawn(PHClient client) {
-    if (!client.isAlive)
+static void HandleCTSpawn(int client) {
+    if (!IsPlayerAlive(client))
         return;
 
-    SetThirdPersonView(client.index, false);
-    if (!IsFakeClient(client.index))
-        SendConVarValue(client.index, g_hForceCamera, "1");
+    SetThirdPersonView(client, false);
+    if (!IsFakeClient(client))
+        SendConVarValue(client, g_hForceCamera, "1");
 
     int currentTime = GetTime();
     float freezeTime = GetConVarFloat(cvar_FreezeTime);
@@ -412,25 +397,25 @@ static void HandleCTSpawn(PHClient client) {
     // only freeze spawning players if the freezetime is still running.
     float elapsedFreezeTime = float(currentTime - g_iFirstCTSpawn);
     if (GetConVarBool(cvar_FreezeCTs) && elapsedFreezeTime < freezeTime) {
-        g_bIsCTWaiting[client.index] = true;
-        CreateTimer(0.05, Timer_FreezePlayer, client.index, TIMER_FLAG_NO_MAPCHANGE);
+        g_bIsCTWaiting[client] = true;
+        CreateTimer(0.05, Timer_FreezePlayer, client, TIMER_FLAG_NO_MAPCHANGE);
 
         // Start freezing player
-        g_hFreezeCTTimer[client.index] = CreateTimer(2.0, Timer_FreezePlayer, client.index, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
+        g_hFreezeCTTimer[client] = CreateTimer(2.0, Timer_FreezePlayer, client, TIMER_FLAG_NO_MAPCHANGE | TIMER_REPEAT);
 
         // Start Unfreezing player
         float timerDelay = freezeTime - elapsedFreezeTime;
-        PrintToChat(client.index, "%s%t", PREFIX, "Wait for t to hide", RoundToFloor(timerDelay));
+        PrintToChat(client, "%s%t", PREFIX, "Wait for t to hide", RoundToFloor(timerDelay));
     }
 
     // show help menu on first spawn
-    if (GetConVarBool(cvar_ShowHelp) && g_bFirstSpawn[client.index]) {
-        Cmd_DisplayHelp(client.index, 0);
-        g_bFirstSpawn[client.index] = false;
+    if (GetConVarBool(cvar_ShowHelp) && g_bFirstSpawn[client]) {
+        Cmd_DisplayHelp(client, 0);
+        g_bFirstSpawn[client] = false;
     }
 
     // Make sure CTs have a knife
-    CreateTimer(2.0, Timer_CheckClientHasKnife, client.index, TIMER_FLAG_NO_MAPCHANGE);
+    CreateTimer(2.0, Timer_CheckClientHasKnife, client, TIMER_FLAG_NO_MAPCHANGE);
 
-    g_bShowFakeProp[client.index] = true;
+    g_bShowFakeProp[client] = true;
 }

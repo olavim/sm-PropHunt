@@ -32,33 +32,32 @@ public Action Event_OnPlayerTeam_Pre(Handle event, const char[] name, bool dontB
 
 // player joined team
 public Action Event_OnPlayerTeam(Handle event, const char[] name, bool dontBroadcast) {
-    int _client = GetClientOfUserId(GetEventInt(event, "userid"));
-    PHClient client = GetPHClient(_client);
-    if (!client)
+    int client = GetClientOfUserId(GetEventInt(event, "userid"));
+    if (!IsClientConnected(client))
         return Plugin_Continue;
 
     int team = GetEventInt(event, "team");
     bool disconnect = GetEventBool(event, "disconnect");
-    g_iClientTeam[client.index] = team;
+    g_iClientTeam[client] = team;
 
-    BlindClient(client.index, false);
-    client.SetFreezed(false);
+    BlindClient(client, false);
+    Client_SetFreezed(client, false);
 
     // Handle the thirdperson view values
     // terrors are always allowed to view players in thirdperson
-    if (client && !IsFakeClient(client.index) && GetConVarInt(g_hForceCamera) == 1) {
+    if (!IsFakeClient(client) && GetConVarInt(g_hForceCamera) == 1) {
         if (team == CS_TEAM_T)
-            SendConVarValue(client.index, g_hForceCamera, "0");
+            SendConVarValue(client, g_hForceCamera, "0");
         else
-            SendConVarValue(client.index, g_hForceCamera, "1");
+            SendConVarValue(client, g_hForceCamera, "1");
     }
 
     if (team < CS_TEAM_T) {
-        int queueNumber = g_iHiderToSeekerQueue[client.index];
-        g_iHiderToSeekerQueue[client.index] = NOT_IN_QUEUE;
+        int queueNumber = g_iHiderToSeekerQueue[client];
+        g_iHiderToSeekerQueue[client] = NOT_IN_QUEUE;
         if (queueNumber != NOT_IN_QUEUE) {
             for (int i = 1; i <= MaxClients; i++) {
-                if (i != client.index && g_iHiderToSeekerQueue[i] > queueNumber) {
+                if (i != client && g_iHiderToSeekerQueue[i] > queueNumber) {
                     g_iHiderToSeekerQueue[i]--;
                 }
             }
@@ -69,15 +68,15 @@ public Action Event_OnPlayerTeam(Handle event, const char[] name, bool dontBroad
 
     // Player joined spectator?
     if (!disconnect && team < CS_TEAM_T) {
-        g_iGuaranteedCTTurns[client.index] = -1;
+        g_iGuaranteedCTTurns[client] = -1;
 
         // show weapons again
-        SetEntProp(client.index, Prop_Send, "m_bDrawViewmodel", 1);
+        SetEntProp(client, Prop_Send, "m_bDrawViewmodel", 1);
     }
 
     // Strip the player if joined T midround
-    if (!disconnect && team == CS_TEAM_T && client.isAlive) {
-        StripClientWeapons(client.index);
+    if (!disconnect && team == CS_TEAM_T && IsPlayerAlive(client)) {
+        StripClientWeapons(client);
     }
 
     // Ignore, if Teambalance is disabled
@@ -85,9 +84,9 @@ public Action Event_OnPlayerTeam(Handle event, const char[] name, bool dontBroad
         return Plugin_Continue;
 
     if (team == CS_TEAM_CT) {
-        g_iGuaranteedCTTurns[client.index] = GetConVarInt(cvar_GuaranteedCTTurns);
+        g_iGuaranteedCTTurns[client] = GetConVarInt(cvar_GuaranteedCTTurns);
     } else {
-        g_iGuaranteedCTTurns[client.index] = -1;
+        g_iGuaranteedCTTurns[client] = -1;
     }
 
     return Plugin_Continue;

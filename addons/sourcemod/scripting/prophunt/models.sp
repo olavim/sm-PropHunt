@@ -12,9 +12,8 @@ public Action Debug_ModelInfo(int client, int args) {
             RenderMode modeParent = GetEntityRenderMode(i);
             RenderMode modeChild;
 
-            PHClient c = GetPHClient(i);
-            if (c.hasChild)
-                modeChild = GetEntityRenderMode(c.child.index);
+            if (Entity_HasChild(i))
+                modeChild = GetEntityRenderMode(Entity_GetChild(i));
 
             char strMP[16] = "other";
             char strMC[16] = "other";
@@ -24,20 +23,8 @@ public Action Debug_ModelInfo(int client, int args) {
             if (modeChild == RENDER_NONE) strMC = "NONE";
 
             ReplyToCommand(client, "%s render mode: %s", name, strMP);
-            if (c.hasChild)
+            if (Entity_HasChild(i))
                 ReplyToCommand(client, "- Child render mode: %s", strMC);
-        }
-    }
-
-    for (int i = 1; i < 2048; i++) {
-        if (i <= MaxClients && IsClientInGame(i) && GetClientTeam(i) == CS_TEAM_T) {
-            if (GetEntityRenderMode(i) == RENDER_TRANSCOLOR) {
-                PrintToServer("Debug: Wrong fucking render mode.");
-                SetEntityRenderMode(i, RENDER_NONE);
-            }
-        } else if (IsValidEntity(i) && (GetEntityFlags(i) & FL_CLIENT) && GetEntityRenderMode(i) == RENDER_TRANSCOLOR) {
-            PrintToServer("Debug: Hiding entity.");
-            SetEntityRenderMode(i, RENDER_NONE);
         }
     }
 

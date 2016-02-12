@@ -22,37 +22,36 @@ public Action Cmd_ToggleThirdPerson(int client, int args) {
 }
 
 // say /whistle
-public Action Cmd_PlayWhistle(int _client, int args) {
-    PHClient client = GetPHClient(_client);
+public Action Cmd_PlayWhistle(int client, int args) {
 
     // check if whistling is enabled
-    if (!GetConVarBool(cvar_Whistle) || !client.isAlive)
+    if (!GetConVarBool(cvar_Whistle) || !IsPlayerAlive(client))
         return Plugin_Handled;
 
     bool cvarWhistleSeeker = view_as<bool>(GetConVarInt(cvar_WhistleSeeker));
+    int team = GetClientTeam(client);
 
-    if (!cvarWhistleSeeker && client.team != CS_TEAM_T) {
-        PrintToChat(client.index, "%s%t", PREFIX, "Only terrorists can use");
+    if (!cvarWhistleSeeker && team != CS_TEAM_T) {
+        PrintToChat(client, "%s%t", PREFIX, "Only terrorists can use");
         return Plugin_Handled;
     }
 
     int cvarWhistleTimes = GetConVarInt(cvar_WhistleTimes);
 
-    if (client.team == CS_TEAM_T || g_iWhistleCount[client.index] < cvarWhistleTimes) {
-        if (client.team == CS_TEAM_T) {
-            MakeClientWhistle(client.index);
+    if (team == CS_TEAM_T || g_iWhistleCount[client] < cvarWhistleTimes) {
+        if (team == CS_TEAM_T) {
+            MakeClientWhistle(client);
             PrintToChatAll("%s%N %t", PREFIX, client, "whistled");
         } else {
             int target, iCount;
             float maxrange, range, clientOrigin[3];
 
-            client.GetOrigin(clientOrigin);
+            Entity_GetAbsOrigin(client, clientOrigin);
             for (int i = 1; i <= MaxClients; i++) {
-                PHClient c = GetPHClient(i);
-                if (c && c.isAlive && c.team == CS_TEAM_T) {
+                if (IsClientInGame(i) && IsPlayerAlive(i) && GetClientTeam(i) == CS_TEAM_T) {
                     iCount++;
                     float targetOrigin[3];
-                    c.GetOrigin(targetOrigin);
+                    Entity_GetAbsOrigin(i, targetOrigin);
                     range = GetVectorDistance(clientOrigin, targetOrigin);
                     if (range > maxrange) {
                         maxrange = range;
@@ -64,12 +63,12 @@ public Action Cmd_PlayWhistle(int _client, int args) {
             if (iCount > 1) {
                 MakeClientWhistle(target);
                 PrintToChatAll("%s %N forced %N to whistle.", PREFIX, client, target);
-                g_iWhistleCount[client.index]++;
-                PrintToChat(client.index, "%s%t", PREFIX, "whistles left", (cvarWhistleTimes - g_iWhistleCount[client.index]));
+                g_iWhistleCount[client]++;
+                PrintToChat(client, "%s%t", PREFIX, "whistles left", (cvarWhistleTimes - g_iWhistleCount[client]));
             }
         }
     } else {
-        PrintToChat(client.index, "%s%t", PREFIX, "whistle limit exceeded", cvarWhistleTimes);
+        PrintToChat(client, "%s%t", PREFIX, "whistle limit exceeded", cvarWhistleTimes);
     }
 
     return Plugin_Handled;
@@ -83,22 +82,21 @@ public Action Cmd_DisplayHelp(int client, int args) {
 
 // say /freeze
 // Freeze hiders in position
-public Action Cmd_Freeze(int _client, int args) {
-    PHClient client = GetPHClient(_client);
-    if (!GetConVarInt(cvar_HiderFreezeMode) || client.team != CS_TEAM_T || !client.isAlive)
+public Action Cmd_Freeze(int client, int args) {
+    if (!GetConVarInt(cvar_HiderFreezeMode) || GetClientTeam(client) != CS_TEAM_T || !IsPlayerAlive(client))
         return Plugin_Handled;
 
-    if (client.isFreezed) {
-        client.SetFreezed(false);
-        PrintToChat(client.index, "%s%t", PREFIX, "Hider Unfreezed");
-    } else if (GetConVarBool(cvar_HiderFreezeInAir) || (GetEntityFlags(client.index) & FL_ONGROUND)) {
-        client.SetFreezed(true);
+    if (IsClientFreezed(client)) {
+        Client_SetFreezed(client, false);
+        PrintToChat(client, "%s%t", PREFIX, "Hider Unfreezed");
+    } else if (GetConVarBool(cvar_HiderFreezeInAir) || (GetEntityFlags(client) & FL_ONGROUND)) {
+        Client_SetFreezed(client, true);
 
         char buffer[128];
         Format(buffer, sizeof(buffer), "*/%s", g_sndFreeze);
-        EmitSoundToClient(client.index, buffer);
+        EmitSoundToClient(client, buffer);
 
-        PrintToChat(client.index, "%s%t", PREFIX, "Hider Freezed");
+        PrintToChat(client, "%s%t", PREFIX, "Hider Freezed");
     }
 
     return Plugin_Handled;
@@ -250,5 +248,5 @@ public Action Cmd_JoinTeam(int client, int args) {
 }
 
 public Action Cmd_SelectModelMenu(int client, int args) {
-   return ShowSelectModelMenu(client, args); 
+   return ShowSelectModelMenu(client, args);
 }
