@@ -246,7 +246,6 @@ stock void Client_UpdateFakeProp(int _client) {
 
     //No fake prop exist? Create a one
     if (!client.hasChild) {
-        PrintToServer("Debug: no child");
         if (g_bShowFakeProp[client.index]) {
             g_bShowFakeProp[client.index] = false;
 

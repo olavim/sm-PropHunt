@@ -29,12 +29,18 @@ public Action Debug_ModelInfo(int client, int args) {
         }
     }
 
-    PHClient c = GetPHClient(client);
-    if (c.hasChild)
-        ReplyToCommand(client, "client has a child... removing");
-    else
-        ReplyToCommand(client, "client does not have a child!");
-    c.RemoveChild();
+    for (int i = 1; i < 2048; i++) {
+        if (i <= MaxClients && IsClientInGame(i) && GetClientTeam(i) == CS_TEAM_T) {
+            if (GetEntityRenderMode(i) == RENDER_TRANSCOLOR) {
+                PrintToServer("Debug: Wrong fucking render mode.");
+                SetEntityRenderMode(i, RENDER_NONE);
+            }
+        } else if (IsValidEntity(i) && GetEntityRenderMode(i) == RENDER_TRANSCOLOR) {
+            PrintToServer("Debug: Hiding entity.");
+            SetEntityRenderMode(i, RENDER_NONE);
+        }
+    }
+
     return Plugin_Handled;
 }
 
