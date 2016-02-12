@@ -27,6 +27,7 @@ Although this plugin has essentially been written from scratch, many snippets or
 - The notation `0+` means a variable accepts integer values greater than or equal to 0, such as `0`, `1`, `255`...
 - The notation `0.0+` again means a variable accepts floating point values greater than or equal to 0, such as `0`, `0.5`, `1`, `19.24`...
 - `0-2` means a variable accepts integer numbers greater than or equal to 0, and smaller than or equal to 2, namely `0`, `1` and `2`.
+- `String` means a variable accepts strings.
 
 Any additional terminological magic you might encounter below should be possible to be deduced from the rules above.
 
@@ -64,6 +65,11 @@ ph_include_default_models   on/off  0: Include default models when one for curre
 ph_force_periodic_whistle   0+      Periodically, every x seconds, force a random hider to whistle - 0: disable periodic whistles.
 ph_periodic_whistle_delay   0+      Number of seconds for the first periodic whistle, if they are enabled.
 ph_turns_to_scramble        0+      Scramble teams every x turns. 0: disable scrambling. Disables the /ct command if enabled.
+
+# not in any release, but included in latest commit:
+
+ph_categorize_models        on/off  Enable splitting the model menu into categories.
+ph_default_category         String  If categories are enabled, uncategorized models are put under this category.
 ```
 
 ## Protected server cvars
@@ -154,6 +160,30 @@ You can also specify model list includes. Including works by specifying model li
 Includes are relative to `addons/sourcemod/configs/prophunt/maps/`, so if you had a file `signs.cfg` in the `maps` folder, you would only write `signs.cfg` in the `#include` section, like in the example above.
 
 The `recurse` key specifies whether or not includes in the included file should be included as well. Valid values are `yes` and `no`.
+
+### Categories
+
+**Not in any release, but included in the latest commit.**
+
+If enabled (see **ph_categorize_models**), models can be categorized and split among multiple menus. This may be beneficial if there are a lot of models. Categories are defined like so:
+
+```
+"Models"
+{
+    "Category A" {
+        "props_c17\oildrum001"          "Oil Drum"
+        "props\de_dust\grainbasket01a"  "Grain Basket (closed)"
+    }
+    
+    "Category B" {
+        "props\de_dust\grainbasket01b"  "Grain Basket (opened)"
+    }
+    
+    ...
+}
+```
+
+Any models that are not in a category will be put under the default category (see **ph_default_category**).
 
 ## Configuring whistles
 
