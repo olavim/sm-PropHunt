@@ -18,7 +18,7 @@ methodmap PHEntity __nullable__
 
     /**
      * Returns the underlying entity.
-     */ 
+     */
     property int index {
         public get() {
             return view_as<int>(this);
@@ -47,30 +47,30 @@ methodmap PHEntity __nullable__
 
     /**
      * Gets the absolute origin (position) of this entity.
-     * 
+     *
      * @param vec       Vector array to hold the origin.
      * @noreturn
-     */ 
+     */
     public void GetOrigin(float vec[3]) {
         PHEntity_GetOrigin(this, vec);
     }
 
     /**
      * Gets the absolute angles (rotation) of this entity.
-     * 
+     *
      * @param vec       Vector array to hold the angles.
      * @noreturn
-     */ 
+     */
     public void GetAbsAngles(float vec[3]) {
         PHEntity_GetAbsAngles(this, vec);
     }
 
     /**
      * Gets the absolute velocity of this entity.
-     * 
+     *
      * @param vec       Vector array to hold the velocity.
      * @noreturn
-     */ 
+     */
     public void GetVelocity(float vec[3]) {
         PHEntity_GetVelocity(this, vec);
     }
@@ -125,7 +125,7 @@ methodmap PHEntity __nullable__
     public void AttachChild() {
         PHEntity_AttachChild(this);
     }
-    
+
     /**
      * Detaches this entity's child from this entity. It may be reattached
      * with AttachChild().
@@ -188,33 +188,33 @@ stock PHEntity PHEntity_GetChild(PHEntity entity) {
 
 /**
  * Gets the absolute origin (position) of an entity.
- * 
+ *
  * @param entity    Entity.
  * @param vec       Vector array to hold the origin.
  * @noreturn
- */ 
+ */
 stock void PHEntity_GetOrigin(PHEntity entity, float vec[3]) {
     GetEntPropVector(entity.index, Prop_Send, "m_vecOrigin", vec);
 }
 
 /**
  * Gets the absolute angles (rotation) of an entity.
- * 
+ *
  * @param entity    Entity.
  * @param vec       Vector array to hold the angles.
  * @noreturn
- */ 
+ */
 stock void PHEntity_GetAbsAngles(PHEntity entity, float vec[3]) {
     GetEntPropVector(entity.index, Prop_Send, "m_angAbsRotation", vec);
 }
 
 /**
  * Gets the absolute velocity of an entity.
- * 
+ *
  * @param entity    Entity.
  * @param vec       Vector array to hold the velocity.
  * @noreturn
- */ 
+ */
 stock void PHEntity_GetVelocity(PHEntity entity, float vec[3]) {
     GetEntPropVector(entity.index, Prop_Send, "m_vecAbsVelocity", vec);
 }
@@ -267,6 +267,7 @@ stock void PHEntity_SetChild(PHEntity entity, PHEntity child) {
 stock void PHEntity_RemoveChild(PHEntity entity) {
     if (entity.hasChild) {
         entity.DetachChild();
+        AcceptEntityInput(entity.child.index, "kill");
         g_iEntityChildren[entity.index] = null;
     }
 }

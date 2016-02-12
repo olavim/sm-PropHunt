@@ -221,8 +221,6 @@ stock void MakeClientWhistle(int client) {
 
 stock void Client_ResetFakeProp(PHClient client) {
     if (client) {
-        if (client.hasChild)
-            AcceptEntityInput(client.child.index, "kill");
         client.RemoveChild();
         client.SetFreezed(false);
     }
@@ -268,10 +266,6 @@ stock void Client_UpdateFakeProp(int _client) {
 }
 
 stock void Client_ReCreateFakeProp(PHClient client) {
-
-    //delete old one if valid
-    if (client.hasChild)
-        AcceptEntityInput(client.child.index, "kill");
     client.RemoveChild();
 
     //Det model
@@ -309,9 +303,8 @@ stock void Client_ReCreateFakeProp(PHClient client) {
 // set a random model to a client
 stock void SetRandomModel(int _client) {
     PHClient client = GetPHClient(_client);
-    if (!client) {
+    if (!client)
         return;
-    }
 
     // give him a random one.
     char ModelPath[80], finalPath[100], ModelName[60];

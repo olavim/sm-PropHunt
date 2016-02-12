@@ -22,7 +22,7 @@ public void OnClientPutInServer(int client) {
 
 public Action OnTakeDamage(int _client, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3]) {
     PHClient client = GetPHClient(_client);
-    if (damagetype & DMG_BURN) {   
+    if (damagetype & DMG_BURN) {
         client.SetMovementSpeed(0.5);
         CreateTimer(3.0, Timer_RestoreSpeed, client);
     }
@@ -113,7 +113,7 @@ public Action OnPlayerRunCmd(int _client, int &buttons, int &impulse, float vel[
     }
 
     // disable ducking for everyone
-    if (GetConVarBool(cvar_DisableDucking) && buttons & IN_DUCK) 
+    if (GetConVarBool(cvar_DisableDucking) && buttons & IN_DUCK)
         buttons &= ~IN_DUCK;
 
     // disable use for everyone
@@ -187,7 +187,7 @@ public Action Event_OnPlayerSpawn(Handle event, const char[] name, bool dontBroa
 
     if (client.team <= CS_TEAM_SPECTATOR || !client.isAlive)
         return Plugin_Continue;
-    
+
     if (client.team == CS_TEAM_T) {
         HandleTSpawn(client);
     } else if (client.team == CS_TEAM_CT) {
@@ -383,7 +383,6 @@ static void HandleTSpawn(PHClient client) {
         PrintToChat(client.index, "%s%t", PREFIX, "seconds to hide", 0);
 
     SetRandomModel(client.index);
-
 }
 
 static void HandleCTSpawn(PHClient client) {
@@ -411,7 +410,7 @@ static void HandleCTSpawn(PHClient client) {
     }
 
     // only freeze spawning players if the freezetime is still running.
-    float elapsedFreezeTime = float(currentTime - g_iFirstCTSpawn); 
+    float elapsedFreezeTime = float(currentTime - g_iFirstCTSpawn);
     if (GetConVarBool(cvar_FreezeCTs) && elapsedFreezeTime < freezeTime) {
         g_bIsCTWaiting[client.index] = true;
         CreateTimer(0.05, Timer_FreezePlayer, client.index, TIMER_FLAG_NO_MAPCHANGE);
@@ -435,4 +434,3 @@ static void HandleCTSpawn(PHClient client) {
 
     g_bShowFakeProp[client.index] = true;
 }
-
