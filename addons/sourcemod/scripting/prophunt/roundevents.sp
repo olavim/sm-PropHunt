@@ -24,7 +24,7 @@ public Action Event_OnRoundStart(Handle event, const char[] name, bool dontBroad
     int iTimeLeft = GameRules_GetProp("m_iRoundTime");
     PrintToServer("Debug: %d", iTimeLeft);
     g_hRoundEndTimer = CreateTimer(float(iTimeLeft) - 0.5, Timer_RoundEnd, _, TIMER_FLAG_NO_MAPCHANGE);
-    g_hAfterFreezeTimer = CreateTimer(GetConVarFloat(cvar_FreezeTime), Timer_AfterFreezeTime, _, TIMER_FLAG_NO_MAPCHANGE); 
+    g_hAfterFreezeTimer = CreateTimer(GetConVarFloat(cvar_FreezeTime), Timer_AfterFreezeTime, _, TIMER_FLAG_NO_MAPCHANGE);
 
     if (GetConVarBool(cvar_TurnsToScramble)) {
         if (g_iTurnsToScramble == 0)
@@ -34,21 +34,7 @@ public Action Event_OnRoundStart(Handle event, const char[] name, bool dontBroad
 
     return Plugin_Continue;
 }
-/*
-// make sure terrorists win on round time end
-public Action CS_OnTerminateRound(float &delay, CSRoundEndReason &reason) {
-    if (reason != CSRoundEnd_TerroristWin) {
-        for (int i = 1; i <= MaxClients; i++) {
-            if (IsClientInGame(i) && IsPlayerAlive(i) && GetClientTeam(i) == CS_TEAM_T) {
-                reason = CSRoundEnd_TerroristWin; 
-                return Plugin_Changed;
-            }
-        }
-    }
 
-    return Plugin_Continue;
-}
-*/
 public Action Event_OnRoundEnd(Handle event, const char[] name, bool dontBroadcast) {
 
     // round has ended. used to not decrease seekers hp on shoot
@@ -72,8 +58,6 @@ public Action Event_OnRoundEnd(Handle event, const char[] name, bool dontBroadca
             g_iPlayerScore[i] = GetEntProp(i, Prop_Data, "m_iFrags");
     }
 
-    //PrintToServer("Debug: %b", GetConVarBool(cvar_TurnsToScramble));
-
     // scramble teams
     if (GetConVarInt(cvar_TurnsToScramble) && g_iTurnsToScramble == 0) {
         ScrambleTeams();
@@ -91,7 +75,6 @@ public Action Event_OnRoundEnd(Handle event, const char[] name, bool dontBroadca
     }
 
     // Switch the flagged players' teams
-    //CreateTimer(0.1, Timer_SwitchTeams, _, TIMER_FLAG_NO_MAPCHANGE);
     SwitchTeams();
 
     return Plugin_Continue;
@@ -145,7 +128,7 @@ public Action Timer_SwitchTeams(Handle timer) {
     return Plugin_Continue;
 }
 
-public Action Timer_AfterFreezeTime(Handle timer) { 
+public Action Timer_AfterFreezeTime(Handle timer) {
     g_hAfterFreezeTimer = INVALID_HANDLE;
 
     if (GetConVarBool(cvar_ForcePeriodicWhistle)) {
@@ -161,7 +144,7 @@ public Action Timer_AfterFreezeTime(Handle timer) {
     return Plugin_Continue;
 }
 
-public Action Timer_MakeRandomClientWhistle(Handle timer, bool firstcall) { 
+public Action Timer_MakeRandomClientWhistle(Handle timer, bool firstcall) {
     float repeatDelay = FloatDiv(GetConVarFloat(cvar_ForcePeriodicWhistle), 2.0);
 
     if (firstcall) {
