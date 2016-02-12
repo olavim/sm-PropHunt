@@ -29,7 +29,7 @@ public Action Debug_ModelInfo(int client, int args) {
         }
     }
 
-    Client_ReCreateFakeProp(GetPHClient(client));
+    GetPHClient(client).RemoveChild();
     return Plugin_Handled;
 }
 
