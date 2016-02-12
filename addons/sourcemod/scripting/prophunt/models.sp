@@ -35,7 +35,7 @@ public Action Debug_ModelInfo(int client, int args) {
                 PrintToServer("Debug: Wrong fucking render mode.");
                 SetEntityRenderMode(i, RENDER_NONE);
             }
-        } else if (IsValidEntity(i) && GetEntityRenderMode(i) == RENDER_TRANSCOLOR) {
+        } else if (IsValidEntity(i) && (GetEntityFlags(i) & FL_CLIENT) && GetEntityRenderMode(i) == RENDER_TRANSCOLOR) {
             PrintToServer("Debug: Hiding entity.");
             SetEntityRenderMode(i, RENDER_NONE);
         }
