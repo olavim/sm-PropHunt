@@ -155,7 +155,7 @@ static void CreateConVars() {
     cvar_ForcePeriodicWhistle = CreateConVar("ph_force_periodic_whistle", "0", "Periodically, every x seconds, force a random hider to whistle. 0 to disable. (Default: 0)", FCVAR_PLUGIN, true, 0.00);
     cvar_PeriodicWhistleDelay = CreateConVar("ph_periodic_whistle_delay", "60", "Number of seconds for the first periodic whistle, if they are enabled. (Default: 60)", FCVAR_PLUGIN, true, 0.00);
     cvar_TurnsToScramble = CreateConVar("ph_turns_to_scramble", "0", "Scramble teams every x turns. 0 to disable scrambling. Disables the /ct command if enabled. (Default: 0)", FCVAR_PLUGIN, true, 0.00);
-    cvar_CategorizeModels = CreateConVar("ph_categorize_models", "1", "Enable splitting model menu into categories. (Default: 1)", FCVAR_PLUGIN, true, 0.00, true, 1.00);
+    cvar_CategorizeModels = CreateConVar("ph_categorize_models", "1", "Enable splitting the model menu into categories. (Default: 1)", FCVAR_PLUGIN, true, 0.00, true, 1.00);
     cvar_DefaultCategory = CreateConVar("ph_default_category", "Map Models", "If categories are enabled, uncategorized models are put under this category. (Default: Map Models)", FCVAR_PLUGIN);
 }
 
