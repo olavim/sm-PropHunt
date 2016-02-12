@@ -29,7 +29,12 @@ public Action Debug_ModelInfo(int client, int args) {
         }
     }
 
-    GetPHClient(client).RemoveChild();
+    PHClient c = GetPHClient(client);
+    if (c.hasChild)
+        ReplyToCommand(client, "client has a child... removing");
+    else
+        ReplyToCommand(client, "client does not have a child!");
+    c.RemoveChild();
     return Plugin_Handled;
 }
 
