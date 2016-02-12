@@ -267,16 +267,11 @@ stock void PHEntity_SetChild(PHEntity entity, PHEntity child) {
  * @noreturn
  */
 stock void PHEntity_RemoveChild(PHEntity entity) {
-    PrintToServer("Debug: Attempting RemoveChild.");
     if (g_iEntityChildren[entity.index] != null) {
-        PrintToServer("Debug: Child not null.");
         entity.DetachChild();
-        PrintToServer("Debug: Child detached.");
-        if (entity.hasChild) {
+        if (entity.hasChild)
             AcceptEntityInput(entity.child.index, "kill");
-            PrintToServer("Debug: Child killed.");
-        }
-        PrintToServer("Debug: Child nulled.");
+
         g_iEntityChildren[entity.index] = null;
         g_iNumEntities--;
     }

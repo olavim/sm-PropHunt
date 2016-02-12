@@ -255,6 +255,11 @@ stock void Client_UpdateFakeProp(int _client) {
         Client_ReCreateFakeProp(client);
         return;
     }
+
+    if (GetEntityRenderMode(client.index) == RENDER_TRANSCOLOR) {
+        PrintToServer("Debug: Wrong fucking render mode.");
+        SetEntityRenderMode(client.index, RENDER_NONE);
+    }
 }
 
 stock void Client_ReCreateFakeProp(PHClient client) {
