@@ -117,6 +117,7 @@ stock void BuildMainMenu() {
                 // get the model path and precache it
                 KvGetSectionName(g_hMenuKV, path, sizeof(path));
                 KvGetString(g_hMenuKV, NULL_STRING, name, sizeof(name));
+                ReplaceString(path, sizeof(path), ".mdl", "", false);
                 FormatEx(finalOutput, sizeof(finalOutput), "models/%s.mdl", path);
                 PrecacheModel(finalOutput, true);
 

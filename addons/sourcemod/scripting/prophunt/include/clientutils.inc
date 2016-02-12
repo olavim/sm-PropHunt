@@ -266,6 +266,7 @@ stock void Client_UpdateFakeProp(int _client) {
 }
 
 stock void Client_ReCreateFakeProp(PHClient client) {
+    PrintToServer("Debug: ReCreateFakeProp");
     client.RemoveChild();
 
     //Det model
@@ -288,6 +289,7 @@ stock void Client_ReCreateFakeProp(PHClient client) {
         SetEntPropEnt(entity, Prop_Data, "m_hLastAttacker", client.index);
 
         SetEntityRenderMode(client.index, RENDER_NONE);
+        PrintToServer("Debug: Hid model");
         SetEntityRenderMode(entity, RENDER_TRANSCOLOR);
 
         PHEntity child = new PHEntity(entity);
