@@ -122,8 +122,8 @@ public Action OnPlayerRunCmd(int _client, int &buttons, int &impulse, float vel[
 
     if (iInitialButtons != buttons)
         return Plugin_Changed;
-    else
-        return Plugin_Continue;
+
+    return Plugin_Continue;
 }
 
 public Action OnWeaponCanUse(int client, int weapon) {

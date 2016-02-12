@@ -164,6 +164,7 @@ methodmap PHEntity __nullable__
 
 PHEntity g_iEntities[MAXENTITIES+1] = {null, ...};
 PHEntity g_iEntityChildren[MAXENTITIES+1] = {null, ...};
+int g_iNumEntities = 0;
 
 /**
  * Returns true if an entity has a child entity,
@@ -255,6 +256,7 @@ stock void PHEntity_SetChild(PHEntity entity, PHEntity child) {
 
     g_iEntityChildren[entity.index] = child;
     entity.AttachChild();
+    g_iNumEntities++;
 }
 
 /**
@@ -265,10 +267,12 @@ stock void PHEntity_SetChild(PHEntity entity, PHEntity child) {
  * @noreturn
  */
 stock void PHEntity_RemoveChild(PHEntity entity) {
-    if (entity.hasChild) {
+    if (g_iEntityChildren[entity.index] != null) {
         entity.DetachChild();
-        AcceptEntityInput(entity.child.index, "kill");
+        if (entity.hasChild)
+            AcceptEntityInput(entity.child.index, "kill");
         g_iEntityChildren[entity.index] = null;
+        g_iNumEntities--;
     }
 }
 

@@ -175,6 +175,7 @@ static void RegisterCommands() {
 
     RegAdminCmd("ph_force_whistle", ForceWhistle, ADMFLAG_CHAT, "Force a player to whistle");
     RegAdminCmd("ph_reload_models", ReloadModels, ADMFLAG_RCON, "Reload the modellist from the map config file.");
+    RegAdminCmd("ph_debugmodels", Debug_ModelInfo, ADMFLAG_RCON, "Print model debug info to console.");
 }
 
 static void AddListeners() {
