@@ -231,30 +231,22 @@ stock void Client_UpdateFakeProp(int _client) {
     if (!client)
         return;
 
-    //Not alive, reset prop
-    if (!client.isAlive) {
+    if (client.team != CS_TEAM_T || !client.isAlive) {
         if (g_bShowFakeProp[client.index]) {
             g_bShowFakeProp[client.index] = false;
 
             SetEntityRenderMode(client.index, RENDER_TRANSCOLOR);
         }
-        Client_ResetFakeProp(client);
-        return;
-    }
 
-    //Wrong team, reset prop
-    if (client.team != CS_TEAM_T) {
-        if (g_bShowFakeProp[client.index]) {
-            g_bShowFakeProp[client.index] = false;
+        if (client.hasChild || client.isFreezed)
+            Client_ResetFakeProp(client);
 
-            SetEntityRenderMode(client.index, RENDER_TRANSCOLOR);
-        }
-        Client_ResetFakeProp(client);
         return;
     }
 
     //No fake prop exist? Create a one
     if (!client.hasChild) {
+        PrintToServer("Debug: no child");
         if (g_bShowFakeProp[client.index]) {
             g_bShowFakeProp[client.index] = false;
 
