@@ -1,4 +1,9 @@
 
+#if defined _phkeyvalues_included
+    #endinput
+#endif
+#define _phkeyvalues_included
+
 #define MAX_SECTION_LENGTH  128
 
 /**
@@ -53,12 +58,12 @@ stock bool KvGetStringByIndex(Handle kv, int index, char[] value, int maxlength)
 stock bool KvIsEmptyTree(Handle kv) {
     if (KvGotoFirstSubKey(kv, false)) {
         KvGoBack(kv);
-        return false;
+        return false; // nonempty tree
     }
 
     char value[128];
     KvGetString(kv, NULL_STRING, value, sizeof(value), "#novalue");
-    return StrEqual(value, "#novalue"); // is it an empty tree
+    return StrEqual(value, "#novalue");
 }
 
 /**
@@ -75,7 +80,7 @@ stock bool KvIsTree(Handle kv) {
 
     char value[128];
     KvGetString(kv, NULL_STRING, value, sizeof(value), "#novalue");
-    return StrEqual(value, "#novalue"); // is it an empty tree
+    return StrEqual(value, "#novalue");
 }
 
 /**
@@ -88,7 +93,7 @@ stock bool KvKeyExists(Handle kv, char[] key) {
     bool keyExists;
     if (keyExists = KvJumpToKey(kv, key))
         KvGoBack(kv);
-    
+
     return keyExists;
 }
 
@@ -122,13 +127,13 @@ stock bool KvJumpToSiblingKey(Handle kv, char[] target) {
  * @noreturn
  */
 stock void KvMerge(Handle kv_to, Handle kv_from) {
-    char key_from[MAX_SECTION_LENGTH];
+    char key_from[MAX_SECTION_LENGTH], value_from[MAX_SECTION_LENGTH];
     do {
         KvGetSectionName(kv_from, key_from, sizeof(key_from));
 
         if (KvIsEmptyTree(kv_from)) {
             KvGoBack(kv_to);
-            KvJumpToKey(kv_to, key_from, true); 
+            KvJumpToKey(kv_to, key_from, true);
         } else if (KvIsTree(kv_from)) {
             KvGotoFirstSubKey(kv_from, false);
 
@@ -187,16 +192,16 @@ stock void KvAddIncludes(KeyValues kv) {
 
         includes.PopString(include, sizeof(include));
         recurses.PopString(recurseStr, sizeof(recurseStr));
+
         processed.PushString(include);
-        BuildPath(Path_SM, path, sizeof(path), "configs/prophunt/maps/%s", include); 
+        BuildPath(Path_SM, path, sizeof(path), "configs/prophunt/maps/%s", include);
         KeyValues kv2 = CreateKeyValues("Models");
 
         if (FileToKeyValues(kv2, path)) {
             PrintToServer("[PropHunt] Included file: %s, recurse: %s", path, recurseStr);
 
-            if (StrEqual(recurseStr, "no"))
-                if (kv2.JumpToKey("#include"))
-                    kv2.DeleteThis();
+            if (StrEqual(recurseStr, "no") && kv2.JumpToKey("#include"))
+                kv2.DeleteThis();
 
             kv2.Rewind();
             KvMerge(kv, kv2);
@@ -210,3 +215,33 @@ stock void KvAddIncludes(KeyValues kv) {
     kv.Rewind();
 }
 
+stock void KvCategorize(KeyValues kv) {
+    if (!kv.GotoFirstSubKey(false))
+        return;
+
+    char defCategory[32], key[PLATFORM_MAX_PATH], value[32];
+    GetConVarString(cvar_DefaultCategory, defCategory, sizeof(defCategory));
+
+    ArrayStack keys = new ArrayStack(sizeof(key));
+    ArrayStack values = new ArrayStack(sizeof(value));
+    do {
+        if (KvIsTree(kv))
+            continue;
+
+        kv.GetSectionName(key, sizeof(key));
+        kv.GetString(NULL_STRING, value, sizeof(value));
+        keys.PushString(key);
+        values.PushString(value);
+    } while ((KvIsTree(kv) && kv.GotoNextKey(false)) || kv.DeleteThis() == 1);
+
+    kv.Rewind();
+    kv.JumpToKey(defCategory, true);
+
+    while (!keys.Empty) {
+        keys.PopString(key, sizeof(key));
+        values.PopString(value, sizeof(value));
+        kv.SetString(key, value);
+    }
+
+    kv.Rewind();
+}

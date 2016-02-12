@@ -24,6 +24,12 @@ public Action Event_OnTeamChange(Handle event, const char[] name, bool dontBroad
     return Plugin_Continue;
 }
 
+// disable team join messages
+public Action Event_OnPlayerTeam_Pre(Handle event, const char[] name, bool dontBroadcast) {
+    SetEventBroadcast(event, true);
+    return Plugin_Continue;
+}
+
 // player joined team
 public Action Event_OnPlayerTeam(Handle event, const char[] name, bool dontBroadcast) {
     int _client = GetClientOfUserId(GetEventInt(event, "userid"));
@@ -33,7 +39,6 @@ public Action Event_OnPlayerTeam(Handle event, const char[] name, bool dontBroad
 
     int team = GetEventInt(event, "team");
     bool disconnect = GetEventBool(event, "disconnect");
-    SetEventBool(event, "silent", true);
     g_iClientTeam[client.index] = team;
 
     BlindClient(client.index, false);
@@ -87,4 +92,3 @@ public Action Event_OnPlayerTeam(Handle event, const char[] name, bool dontBroad
 
     return Plugin_Continue;
 }
-

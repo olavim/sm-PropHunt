@@ -1,8 +1,8 @@
 
-#if defined _globals_included
+#if defined _phglobals_included
     #endinput
 #endif
-#define _globals_included
+#define _phglobals_included
 
 #define PREFIX              "\x03[PropHunt] \x05"
 
@@ -49,6 +49,8 @@ Handle cvar_IncludeDefaultModels = INVALID_HANDLE;
 Handle cvar_ForcePeriodicWhistle = INVALID_HANDLE;
 Handle cvar_PeriodicWhistleDelay = INVALID_HANDLE;
 Handle cvar_TurnsToScramble = INVALID_HANDLE;
+Handle cvar_CategorizeModels = INVALID_HANDLE;
+Handle cvar_DefaultCategory = INVALID_HANDLE;
 
 /* server cvars ------------------------------------------------- */
 
@@ -88,8 +90,8 @@ int forced_values[sizeof(protected_cvars)] = {
     3, // mp_default_team_winner_no_objective
 };
 
-int previous_values[sizeof(protected_cvars)] = {0, ...}; 
-Handle g_hProtectedConvar[sizeof(protected_cvars)] = {INVALID_HANDLE, ...}; 
+int previous_values[sizeof(protected_cvars)] = {0, ...};
+Handle g_hProtectedConvar[sizeof(protected_cvars)] = {INVALID_HANDLE, ...};
 Handle g_hForceCamera = INVALID_HANDLE;
 
 /* timers ------------------------------------------------- */
@@ -114,6 +116,7 @@ bool g_bClientTeambalanced[MAXPLAYERS];
 /* menus ------------------------------------------------- */
 
 Handle g_hModelMenu = INVALID_HANDLE;
+Handle g_hModelMenuCategory[32] = {INVALID_HANDLE, ...};
 KeyValues g_hMenuKV;
 
 /* offsets ------------------------------------------------- */
@@ -126,6 +129,7 @@ int g_flLaggedMovementValue;
 bool g_bAllowModelChange[MAXPLAYERS] = {true, ...};
 bool g_bShowFakeProp[MAXPLAYERS];
 int g_iTotalModelsAvailable = 0;
+int g_iTotalCategoriesAvailable = 0;
 int g_iModelChangeCount[MAXPLAYERS] = {0, ...};
 int g_iLowModelSteps[MAXPLAYERS] = {0, ...};
 

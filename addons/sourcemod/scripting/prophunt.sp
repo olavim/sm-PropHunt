@@ -21,7 +21,7 @@ I'm publishing this under the MIT licence, but I don't really give a shit.
 #pragma semicolon 1
 #include <sourcemod>
 #include <sdktools>
-#include <cstrike> 
+#include <cstrike>
 #include <sdkhooks>
 #include "prophunt/include/globals.inc"
 #include "prophunt/include/keyvalues.inc"
@@ -39,7 +39,7 @@ public Plugin myinfo = {
 };
 
 public void OnPluginStart() {
-    Handle hVersion = CreateConVar("ph_version", PLUGIN_VERSION, "PropHunt", 
+    Handle hVersion = CreateConVar("ph_version", PLUGIN_VERSION, "PropHunt",
             FCVAR_PLUGIN | FCVAR_SPONLY | FCVAR_REPLICATED | FCVAR_NOTIFY | FCVAR_DONTRECORD);
     SetConVarString(hVersion, PLUGIN_VERSION);
 
@@ -95,7 +95,7 @@ public Action SpamCommands(Handle timer, int data) {
             if (IsClientInGame(i) && GetClientTeam(i) == CS_TEAM_T)
                 PrintToChat(i, "%s%t", PREFIX, "T type /tp");
     }
-    
+
     CreateTimer(120.0, SpamCommands, (data == 0 ? 1 : 0));
     return Plugin_Continue;
 }
@@ -155,6 +155,8 @@ static void CreateConVars() {
     cvar_ForcePeriodicWhistle = CreateConVar("ph_force_periodic_whistle", "0", "Periodically, every x seconds, force a random hider to whistle. 0 to disable. (Default: 0)", FCVAR_PLUGIN, true, 0.00);
     cvar_PeriodicWhistleDelay = CreateConVar("ph_periodic_whistle_delay", "60", "Number of seconds for the first periodic whistle, if they are enabled. (Default: 60)", FCVAR_PLUGIN, true, 0.00);
     cvar_TurnsToScramble = CreateConVar("ph_turns_to_scramble", "0", "Scramble teams every x turns. 0 to disable scrambling. Disables the /ct command if enabled. (Default: 0)", FCVAR_PLUGIN, true, 0.00);
+    cvar_CategorizeModels = CreateConVar("ph_categorize_models", "1", "Enable splitting model menu into categories. (Default: 1)", FCVAR_PLUGIN, true, 0.00, true, 1.00);
+    cvar_DefaultCategory = CreateConVar("ph_default_category", "Map Models", "If categories are enabled, uncategorized models are put under this category. (Default: Map Models)", FCVAR_PLUGIN);
 }
 
 static void RegisterCommands() {
@@ -186,6 +188,7 @@ static void AddListeners() {
     HookEvent("round_end", Event_OnRoundEnd);
     HookEvent("round_end", Event_OnRoundEnd_Pre, EventHookMode_Pre);
     HookEvent("player_team", Event_OnPlayerTeam);
+    HookEvent("player_team", Event_OnPlayerTeam_Pre, EventHookMode_Pre);
     //HookEvent("teamchange_pending", Event_OnTeamChange);
     HookEvent("item_equip", Event_ItemEquip);
 
@@ -213,4 +216,3 @@ static void LoadLang() {
 #include "prophunt/models.sp"
 #include "prophunt/spectate.sp"
 #include "prophunt/teamevents.sp"
-
